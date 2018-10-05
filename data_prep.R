@@ -1,7 +1,7 @@
 #######################################################
 #                                                     #
 #   R script for importing and cleaning survey data   #
-#                 Version 2018-10-06                  #
+#                 Version 2018-10-07                  #
 #                (c) Andrew Terhorst                  #
 #                                                     #
 #######################################################
