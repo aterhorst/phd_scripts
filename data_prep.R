@@ -91,7 +91,7 @@ nodes_rescaled <- nodes_clean %>%
 
 require(ggmap)
 
-register_google(key = "AIzaSyCLSTfR7wUOB2QxMaoAwIrhvKNKVgrjF28")
+register_google(key = "")
 
 nodes_geocode <- nodes_rescaled %>%
   # add country information for non-Australian residents
