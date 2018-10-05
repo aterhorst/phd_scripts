@@ -62,17 +62,17 @@ nodes_rescaled <- nodes_clean %>%
   rowwise() %>%
   # aggregate items and rescale to values between 0 and 1
   mutate(personality_openness = round((mean(c(Openness1, Openness2)) - 1) / 9, digits = 2),
-         personality_conscientiousness = round((mean(c(Conscientiousness1, Conscietiousness2)) - 1) / 9, digits =2),
-         personality_agreeableness = round((mean(c(Agreeableness1, Agreeableness2)) - 1) / 9, digits =2),
-         job_competence = round((mean(c(Competence1, Competence2, Competence3)) - 1) / 9, digits =2),
-         self_determination = round((mean(c(SelfDetermination1, SelfDetermination2, SelfDetermination3)) - 1) / 9, digits =2),
-         creative_self_efficacy = round((mean(c(Creativity1, Creativity2, Creativity3, Creativity4)) - 1) / 9, digits =2),
-         amotivation = round((mean(c(Amotivation1, Amotivation2, Amotivation3)) - 1) / 9, digits =2),
-         extrinsic_regulation_social = round((mean(c(ExtrinsicRegulationSocial1, ExtrinsicRegulationSocial2, ExtrinsicRegulationSocial3)) - 1) / 9, digits =2),
-         extrinsic_regulation_material = round((mean(c(ExtrinsicRegulationMaterial1, ExtrinsicRegulationMaterial2, ExtrinsicRegulationMaterial3)) - 1) / 9, digits =2),
-         introjected_regulation = round((mean(c(IntrojectedRegulation1, IntrojectedRegulation2, IntrojectedRegulation3, IntrojectedRegulation4)) - 1) / 9, digits =2),
-         identified_regulation = round((mean(c(IdentifiedRegulation1, IdentifiedRegulation2, IdentifiedRegulation3)) - 1) / 9, digits =2),
-         intrinsic_motivation = round((mean(c(IntrinsicMotivation1, IntrinsicMotivation2, IntrinsicMotivation3)) -1 ) / 9, digits = 2),
+         personality_conscientiousness = round((mean(c(Conscientiousness1, Conscietiousness2)) - 1) / 9, digits = 2),
+         personality_agreeableness = round((mean(c(Agreeableness1, Agreeableness2)) - 1) / 9, digits = 2),
+         job_competence = round((mean(c(Competence1, Competence2, Competence3)) - 1) / 9, digits = 2),
+         self_determination = round((mean(c(SelfDetermination1, SelfDetermination2, SelfDetermination3)) - 1) / 9, digits = 2),
+         creative_self_efficacy = round((mean(c(Creativity1, Creativity2, Creativity3, Creativity4)) - 1) / 9, digits = 2),
+         amotivation = round((mean(c(Amotivation1, Amotivation2, Amotivation3)) - 1) / 9, digits = 2),
+         extrinsic_regulation_social = round((mean(c(ExtrinsicRegulationSocial1, ExtrinsicRegulationSocial2, ExtrinsicRegulationSocial3)) - 1) / 9, digits = 2),
+         extrinsic_regulation_material = round((mean(c(ExtrinsicRegulationMaterial1, ExtrinsicRegulationMaterial2, ExtrinsicRegulationMaterial3)) - 1) / 9, digits = 2),
+         introjected_regulation = round((mean(c(IntrojectedRegulation1, IntrojectedRegulation2, IntrojectedRegulation3, IntrojectedRegulation4)) - 1) / 9, digits = 2),
+         identified_regulation = round((mean(c(IdentifiedRegulation1, IdentifiedRegulation2, IdentifiedRegulation3)) - 1) / 9, digits = 2),
+         intrinsic_motivation = round((mean(c(IntrinsicMotivation1, IntrinsicMotivation2, IntrinsicMotivation3)) -1 ) / 9, digits =  2),
          identification_group = round((identification_group - 1) / 9, digits =2),
          identification_org = round((identification_org - 1) / 9, digits =2),
          identification_collab = round((identification_collab - 1) / 9, digits =2),
@@ -94,7 +94,7 @@ require(ggmap)
 register_google(key = "AIzaSyCLSTfR7wUOB2QxMaoAwIrhvKNKVgrjF28")
 
 nodes_geocode <- nodes_rescaled %>%
-  # add country information
+  # add country information for non-Australian residents
   mutate(country = case_when(name == "Gerd Uitdewilligen" ~ "United States",
                              name == "Ron Mulder" ~ "New Zealand",
                              name == "Martin Paley" ~ "New Zealand",
@@ -172,11 +172,16 @@ edges_dist <- edges_rescale %>%
   # geocode from, to
   inner_join(coords %>% rename(from_lat = lat, from_lon = lon), by = c("from" = "id", "case")) %>%
   inner_join(coords %>% rename(to_lat = lat, to_lon = lon), by = c("to" = "id", "case")) %>%
-  # calculate great circle distance
+  # do calculations per row 
   rowwise() %>%
+  # calculate great circle distance
   mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0)) %>%
   # subset columns
   select(case, from, to, network, tacitness, distance)
+
+# save processed edge data
+
+write.csv(edges_dist, file = "~/ownCloud/Innovation Network Analysis/Quantitative Data/edge_table_dist.csv", row.names = F)
 
 # build multilayer networks for each case
 
