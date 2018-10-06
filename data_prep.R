@@ -190,6 +190,11 @@ edges_dist <- edges_rescale %>%
   rowwise() %>%
   # calculate great circle distance and threshold tacitness
   mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0)) %>%
+  # rename networks
+  mutate(network = str_replace(network, "relationship_set_", ""),
+         network = if_else(network == "knowledge_sharing" & tacitness >= 0.5, "predominantly_tacit_knowledge_provider", network),
+         network = if_else(network == "knowledge_sharing" & tacitness < 0.5, "predominantly_explicit_knowledge_provider", network),
+         network = if_else(network == "idea_generation", "idea_provider", network)) %>%
   # subset columns
   select(case, from, to, network, tacitness, distance) 
 
@@ -214,13 +219,12 @@ edges_case_1 <- edges_dist %>%
 network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = edges_case_1, directed = T) %>%
   activate(edges) %>%
   # reverse edges
-  reroute(from = if_else(network == "relationship_set_knowledge_sharing", to, from),
-          to = if_else(network == "relationship_set_knowledge_sharing", from, to)) %>%
-  reroute(from = if_else(network == "relationship_set_idea_generation", to, from),
-          to = if_else(network == "relationship_set_idea_generation", from, to)) %>%
-  # split knowledge sharing network into predominantly tacit and explicit knowledge sharing 
-  mutate(network = if_else(network == "relationship_set_knowledge_sharing" & tacitness >= 0.5, "relationship_set_predominantly_tacit", network),
-         network = if_else(network == "relationship_set_knowledge_sharing" & tacitness < 0.5, "relationship_set_predominantly_explicit", network))
+  reroute(from = if_else(network == "predominantly_tacit_knowledge_provider", to, from),
+          to = if_else(network == "predominantly_tacit_knowledge_provider", from, to)) %>%
+  reroute(from = if_else(network == "predominantly_explicit_knowledge_provider", to, from),
+          to = if_else(network == "predominantly_explicit_knowledge_provider", from, to)) %>%
+  reroute(from = if_else(network == "idea_provider", to, from),
+          to = if_else(network == "idea_provider", from, to)) 
 
 # case 2
 
@@ -235,13 +239,12 @@ edges_case_2 <- edges_dist %>%
 network_case_2 <- tbl_graph(nodes = nodes_case_2, edges = edges_case_2, directed = T) %>%
   activate(edges) %>%
   # reverse edges
-  reroute(from = if_else(network == "relationship_set_knowledge_sharing", to, from),
-          to = if_else(network == "relationship_set_knowledge_sharing", from, to)) %>%
-  reroute(from = if_else(network == "relationship_set_idea_generation", to, from),
-          to = if_else(network == "relationship_set_idea_generation", from, to)) %>%
-  # split knowledge sharing network into predominantly tacit and explicit knowledge sharing 
-  mutate(network = if_else(network == "relationship_set_knowledge_sharing" & tacitness >= 0.5, "relationship_set_predominantly_tacit", network),
-         network = if_else(network == "relationship_set_knowledge_sharing" & tacitness < 0.5, "relationship_set_predominantly_explicit", network))
+  reroute(from = if_else(network == "predominantly_tacit_knowledge_provider", to, from),
+          to = if_else(network == "predominantly_tacit_knowledge_provider", from, to)) %>%
+  reroute(from = if_else(network == "predominantly_explicit_knowledge_provider", to, from),
+          to = if_else(network == "predominantly_explicit_knowledge_provider", from, to)) %>%
+  reroute(from = if_else(network == "idea_provider", to, from),
+          to = if_else(network == "idea_provider", from, to)) 
 
 
 # case 3
@@ -257,27 +260,26 @@ edges_case_3 <- edges_dist %>%
 network_case_3 <- tbl_graph(nodes = nodes_case_3, edges = edges_case_3, directed = T) %>%
   activate(edges) %>%
   # reverse edges
-  reroute(from = if_else(network == "relationship_set_knowledge_sharing", to, from),
-          to = if_else(network == "relationship_set_knowledge_sharing", from, to)) %>%
-  reroute(from = if_else(network == "relationship_set_idea_generation", to, from),
-          to = if_else(network == "relationship_set_idea_generation", from, to)) %>%
-  # split knowledge sharing network into predominantly tacit and explicit knowledge sharing 
-  mutate(network = if_else(network == "relationship_set_knowledge_sharing" & tacitness >= 0.5, "relationship_set_predominantly_tacit", network),
-         network = if_else(network == "relationship_set_knowledge_sharing" & tacitness < 0.5, "relationship_set_predominantly_explicit", network))
+  reroute(from = if_else(network == "predominantly_tacit_knowledge_provider", to, from),
+          to = if_else(network == "predominantly_tacit_knowledge_provider", from, to)) %>%
+  reroute(from = if_else(network == "predominantly_explicit_knowledge_provider", to, from),
+          to = if_else(network == "predominantly_explicit_knowledge_provider", from, to)) %>%
+  reroute(from = if_else(network == "idea_provider", to, from),
+          to = if_else(network == "idea_provider", from, to)) 
 
 
 # plot networks
 
 require(ggraph)
 
-subset <- c("relationship_set_predominantly_tacit", 
-            "relationship_set_predominantly_explicit", 
-            "relationship_set_idea_generation")
+subset <- c("predominantly_tacit_knowledge_provider", 
+            "predominantly_explicit_knowledge_provider", 
+            "idea_provider")
 
 ggraph(network_case_1 %>% activate(edges) %>% filter(network %in% subset), layout = "kk") +
-  geom_edge_link(aes(color = distance)) +
-  geom_node_point() +
-  geom_node_text(aes(label = id), size = 4) +
+  geom_edge_link(aes(color = distance), arrow = arrow(length = unit(4, 'mm')), end_cap = circle(3, 'mm')) +
+  geom_node_point(size = 6) +
+  geom_node_text(aes(label = id), colour = "white", size = 4) +
   theme_graph() + facet_wrap(~ network)
 
 
