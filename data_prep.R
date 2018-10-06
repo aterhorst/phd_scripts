@@ -18,9 +18,23 @@ nodes_case_3 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative 
 
 require(tidyverse)
 
-nodes <- bind_rows(nodes_case_1 %>% mutate(case = 1) %>% rename(Occupation = Occupation1),
+nodes <- bind_rows(nodes_case_1 %>% mutate(case = 1) %>% rename(Occupation = Occupation1), # fix glitch with first survey
                    nodes_case_2 %>% mutate(case = 2),
                    nodes_case_3 %>% mutate(case = 3))
+
+# read in employer data
+
+employer_case_1 <- read.csv("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 1/LookUpTable.csv", stringsAsFactors = F)
+employer_case_2 <- read.csv("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 2/LookUpTable.csv", stringsAsFactors = F)
+employer_case_3 <- read.csv("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 3/LookUpTable.csv", stringsAsFactors = F)
+
+# merge employer data
+
+employer <- bind_rows(employer_case_1 %>% mutate(case = 1),
+                      employer_case_2 %>% mutate(case = 2),
+                      employer_case_3 %>% mutate(case = 3)) %>%
+  rename(name = lookupValue, employer_id = newValue) %>%
+  select(case, name, employer_id)
 
 # preliminary cleaning
 
@@ -78,14 +92,15 @@ nodes_rescaled <- nodes_clean %>%
          identification_collab = round((identification_collab - 1) / 9, digits =2),
          controlled_motivation = round(mean(c(extrinsic_regulation_social, extrinsic_regulation_material, introjected_regulation)), digits = 2),
          autonomous_motivation = round(mean(c(identified_regulation, intrinsic_motivation)), digits = 2)) %>%
-  # subset data columns
+  # subset aggregated scale items 
   select(case, id, name, gender, age, work_location, education_level, broad_education_field, occupation_class, work_experience, current_tenure,
          personality_openness, personality_conscientiousness, personality_agreeableness, job_competence, creative_self_efficacy, job_competence,
          amotivation, extrinsic_regulation_social, extrinsic_regulation_material, introjected_regulation, identified_regulation, intrinsic_motivation,
          identification_group, identification_org, identification_collab, controlled_motivation, autonomous_motivation) %>%
+  # add employer id
+  inner_join(employer, by = c("case", "name")) %>%
   # remove rows containing NA values
-  drop_na()
-         
+  drop_na() 
 
 # geocode nodes
 
@@ -102,8 +117,6 @@ nodes_geocode <- nodes_rescaled %>%
                              name == "Flore Mas" ~ "New Zealand",
                              name == "Taylor Welsh" ~ "New Zealand",
                              name == "Rachael Horner" ~ "New Zealand",
-                             name == "Ron Mulder" ~ "New Zealand",
-                             name == "Ron Mulder" ~ "New Zealand",
                              name == "Kerstin Vollmer" ~ "Sweden",
                              name == "Mikael Kartunen" ~ "Sweden",
                              name == "Martin Palmqvist" ~ "Sweden",
@@ -168,21 +181,108 @@ edges_dist <- edges_rescale %>%
            relationship_set_cognitionbased_trust,
            relationship_set_prior_relationships,
            relationship_set_managers)) %>%
+  # remove redundant data
   filter(flag == 1) %>%
   # geocode from, to
   inner_join(coords %>% rename(from_lat = lat, from_lon = lon), by = c("from" = "id", "case")) %>%
   inner_join(coords %>% rename(to_lat = lat, to_lon = lon), by = c("to" = "id", "case")) %>%
   # do calculations per row 
   rowwise() %>%
-  # calculate great circle distance
+  # calculate great circle distance and threshold tacitness
   mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0)) %>%
   # subset columns
-  select(case, from, to, network, tacitness, distance)
+  select(case, from, to, network, tacitness, distance) 
 
 # save processed edge data
 
 write.csv(edges_dist, file = "~/ownCloud/Innovation Network Analysis/Quantitative Data/edge_table_dist.csv", row.names = F)
 
 # build multilayer networks for each case
+
+require(tidygraph)
+
+# case 1
+
+nodes_case_1 <- nodes_geocode %>%
+  filter(case == 1) %>%
+  select(-c(case, place))
+
+edges_case_1 <- edges_dist %>%
+  filter(case == 1) %>%
+  select(-case)
+
+network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = edges_case_1, directed = T) %>%
+  activate(edges) %>%
+  # reverse edges
+  reroute(from = if_else(network == "relationship_set_knowledge_sharing", to, from),
+          to = if_else(network == "relationship_set_knowledge_sharing", from, to)) %>%
+  reroute(from = if_else(network == "relationship_set_idea_generation", to, from),
+          to = if_else(network == "relationship_set_idea_generation", from, to)) %>%
+  # split knowledge sharing network into predominantly tacit and explicit knowledge sharing 
+  mutate(network = if_else(network == "relationship_set_knowledge_sharing" & tacitness >= 0.5, "relationship_set_predominantly_tacit", network),
+         network = if_else(network == "relationship_set_knowledge_sharing" & tacitness < 0.5, "relationship_set_predominantly_explicit", network))
+
+# case 2
+
+nodes_case_2 <- nodes_geocode %>%
+  filter(case == 2) %>%
+  select(-c(case, place))
+
+edges_case_2 <- edges_dist %>%
+  filter(case == 2) %>%
+  select(-case)
+
+network_case_2 <- tbl_graph(nodes = nodes_case_2, edges = edges_case_2, directed = T) %>%
+  activate(edges) %>%
+  # reverse edges
+  reroute(from = if_else(network == "relationship_set_knowledge_sharing", to, from),
+          to = if_else(network == "relationship_set_knowledge_sharing", from, to)) %>%
+  reroute(from = if_else(network == "relationship_set_idea_generation", to, from),
+          to = if_else(network == "relationship_set_idea_generation", from, to)) %>%
+  # split knowledge sharing network into predominantly tacit and explicit knowledge sharing 
+  mutate(network = if_else(network == "relationship_set_knowledge_sharing" & tacitness >= 0.5, "relationship_set_predominantly_tacit", network),
+         network = if_else(network == "relationship_set_knowledge_sharing" & tacitness < 0.5, "relationship_set_predominantly_explicit", network))
+
+
+# case 3
+
+nodes_case_3 <- nodes_geocode %>%
+  filter(case == 3) %>%
+  select(-c(case, place))
+
+edges_case_3 <- edges_dist %>%
+  filter(case == 3) %>%
+  select(-case)
+
+network_case_3 <- tbl_graph(nodes = nodes_case_3, edges = edges_case_3, directed = T) %>%
+  activate(edges) %>%
+  # reverse edges
+  reroute(from = if_else(network == "relationship_set_knowledge_sharing", to, from),
+          to = if_else(network == "relationship_set_knowledge_sharing", from, to)) %>%
+  reroute(from = if_else(network == "relationship_set_idea_generation", to, from),
+          to = if_else(network == "relationship_set_idea_generation", from, to)) %>%
+  # split knowledge sharing network into predominantly tacit and explicit knowledge sharing 
+  mutate(network = if_else(network == "relationship_set_knowledge_sharing" & tacitness >= 0.5, "relationship_set_predominantly_tacit", network),
+         network = if_else(network == "relationship_set_knowledge_sharing" & tacitness < 0.5, "relationship_set_predominantly_explicit", network))
+
+
+# plot networks
+
+require(ggraph)
+
+subset <- c("relationship_set_predominantly_tacit", 
+            "relationship_set_predominantly_explicit", 
+            "relationship_set_idea_generation")
+
+ggraph(network_case_1 %>% activate(edges) %>% filter(network %in% subset), layout = "kk") +
+  geom_edge_link(aes(color = distance)) +
+  geom_node_point() +
+  geom_node_text(aes(label = id), size = 4) +
+  theme_graph() + facet_wrap(~ network)
+
+
+
+
+
 
 
