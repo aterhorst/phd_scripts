@@ -79,9 +79,9 @@ nodes_rescaled <- nodes_clean %>%
          introjected_regulation = round((mean(c(IntrojectedRegulation1, IntrojectedRegulation2, IntrojectedRegulation3, IntrojectedRegulation4)) - 1) / 9, digits = 2),
          identified_regulation = round((mean(c(IdentifiedRegulation1, IdentifiedRegulation2, IdentifiedRegulation3)) - 1) / 9, digits = 2),
          intrinsic_motivation = round((mean(c(IntrinsicMotivation1, IntrinsicMotivation2, IntrinsicMotivation3)) -1 ) / 9, digits =  2),
-         identification_group = round((identification_group - 1) / 9, digits =2),
-         identification_org = round((identification_org - 1) / 9, digits =2),
-         identification_collab = round((identification_collab - 1) / 9, digits =2),
+         identification_group = round((identification_group - 1) / 9, digits = 2),
+         identification_org = round((identification_org - 1) / 9, digits = 2),
+         identification_collab = round((identification_collab - 1) / 9, digits = 2),
          controlled_motivation = round(mean(c(extrinsic_regulation_social, extrinsic_regulation_material, introjected_regulation)), digits = 2),
          autonomous_motivation = round(mean(c(identified_regulation, intrinsic_motivation)), digits = 2)) %>%
   # subset aggregated scale items 
