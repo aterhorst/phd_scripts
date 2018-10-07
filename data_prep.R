@@ -10,31 +10,23 @@
 
 require(readxl)
 
-nodes_case_1 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 1/surveydata.xlsx", sheet = 1)
-nodes_case_2 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 2/surveydata.xlsx", sheet = 1)
-nodes_case_3 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 3/surveydata.xlsx", sheet = 1)
+node_data_case_1 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 1/surveydata.xlsx", sheet = 1)
+node_data_case_2 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 2/surveydata.xlsx", sheet = 1)
+node_data_case_3 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 3/surveydata.xlsx", sheet = 1)
 
 # merge node data
 
 require(tidyverse)
 
-nodes <- bind_rows(nodes_case_1 %>% mutate(case = 1) %>% rename(Occupation = Occupation1), # fix glitch with first survey
-                   nodes_case_2 %>% mutate(case = 2),
-                   nodes_case_3 %>% mutate(case = 3))
+nodes <- bind_rows(node_data_case_1 %>% mutate(case = 1) %>% rename(Occupation = Occupation1), # fix glitch with first survey
+                   node_data_case_2 %>% mutate(case = 2),
+                   node_data_case_3 %>% mutate(case = 3)) %>% 
+  # only consider completed survey responses
+  filter(completed == "Complete")
 
-# read in employer data
+# read in organisational affiliation data
 
-employer_case_1 <- read.csv("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 1/LookUpTable.csv", stringsAsFactors = F)
-employer_case_2 <- read.csv("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 2/LookUpTable.csv", stringsAsFactors = F)
-employer_case_3 <- read.csv("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 3/LookUpTable.csv", stringsAsFactors = F)
-
-# merge employer data
-
-employer <- bind_rows(employer_case_1 %>% mutate(case = 1),
-                      employer_case_2 %>% mutate(case = 2),
-                      employer_case_3 %>% mutate(case = 3)) %>%
-  rename(name = lookupValue, employer_id = newValue) %>%
-  select(case, name, employer_id)
+affiliation <- read.csv("~/ownCloud/Innovation Network Analysis/Quantitative Data/org_affiliation.csv", stringsAsFactors = F)
 
 # preliminary cleaning
 
@@ -97,8 +89,8 @@ nodes_rescaled <- nodes_clean %>%
          personality_openness, personality_conscientiousness, personality_agreeableness, job_competence, creative_self_efficacy, job_competence,
          amotivation, extrinsic_regulation_social, extrinsic_regulation_material, introjected_regulation, identified_regulation, intrinsic_motivation,
          identification_group, identification_org, identification_collab, controlled_motivation, autonomous_motivation) %>%
-  # add employer id
-  inner_join(employer, by = c("case", "name")) %>%
+  # add organisation affiation
+  inner_join(affiliation, by = c("case", "name")) %>%
   # remove rows containing NA values
   drop_na() 
 
@@ -139,21 +131,17 @@ nodes_geocode <- nodes_rescaled %>%
   # geocode place
   mutate_geocode(place, sensor = F, output = "latlon", source = "google", force = T)
 
-# save processed node data
-
-write.csv(nodes_geocode, file = "~/ownCloud/Innovation Network Analysis/Quantitative Data/geocoded_node_table.csv", row.names = F)
-
 # read in raw edge data  
 
-edges_case_1 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 1/surveydata.xlsx", sheet = 2)
-edges_case_2 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 2/surveydata.xlsx", sheet = 2)
-edges_case_3 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 3/surveydata.xlsx", sheet = 2)
+edge_data_case_1 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 1/surveydata.xlsx", sheet = 2)
+edge_data_case_2 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 2/surveydata.xlsx", sheet = 2)
+edge_data_case_3 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 3/surveydata.xlsx", sheet = 2)
 
 # merge edge data
 
-edges <- bind_rows(edges_case_1 %>% mutate(case = 1),
-                   edges_case_2 %>% mutate(case = 2),
-                   edges_case_3 %>% mutate(case = 3))
+edges <- bind_rows(edge_data_case_1 %>% mutate(case = 1),
+                   edge_data_case_2 %>% mutate(case = 2),
+                   edge_data_case_3 %>% mutate(case = 3))
 
 # aggregate and rescale tacitness
 
@@ -198,10 +186,6 @@ edges_dist <- edges_rescale %>%
   # subset columns
   select(case, from, to, network, tacitness, distance) 
 
-# save processed edge data
-
-write.csv(edges_dist, file = "~/ownCloud/Innovation Network Analysis/Quantitative Data/edge_table_dist.csv", row.names = F)
-
 # build multilayer networks for each case
 
 require(tidygraph)
@@ -210,11 +194,16 @@ require(tidygraph)
 
 nodes_case_1 <- nodes_geocode %>%
   filter(case == 1) %>%
-  select(-c(case, place))
+  select(-c(case, place)) %>%
+  mutate(id = as.character(id))
 
 edges_case_1 <- edges_dist %>%
   filter(case == 1) %>%
-  select(-case)
+  mutate_at(vars(to, from), as.character) %>%
+  # remove orphan edges
+  inner_join(nodes_case_1, by = c("from" = "id", "to" = "id")) %>%
+  select(-case) 
+
 
 network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = edges_case_1, directed = T) %>%
   activate(edges) %>%
@@ -230,11 +219,15 @@ network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = edges_case_1, directed
 
 nodes_case_2 <- nodes_geocode %>%
   filter(case == 2) %>%
-  select(-c(case, place))
+  select(-c(case, place)) %>%
+  mutate(id = as.character(id))
 
 edges_case_2 <- edges_dist %>%
   filter(case == 2) %>%
-  select(-case)
+  mutate_at(vars(to, from), as.character) %>%
+  # remove orphan edges
+  inner_join(nodes_case_2, by = c("from" = "id", "to" = "id")) %>%
+  select(-case) 
 
 network_case_2 <- tbl_graph(nodes = nodes_case_2, edges = edges_case_2, directed = T) %>%
   activate(edges) %>%
@@ -246,16 +239,19 @@ network_case_2 <- tbl_graph(nodes = nodes_case_2, edges = edges_case_2, directed
   reroute(from = if_else(network == "idea_provider", to, from),
           to = if_else(network == "idea_provider", from, to)) 
 
-
 # case 3
 
 nodes_case_3 <- nodes_geocode %>%
   filter(case == 3) %>%
-  select(-c(case, place))
+  select(-c(case, place)) %>%
+  mutate(id = as.character(id))
 
 edges_case_3 <- edges_dist %>%
   filter(case == 3) %>%
-  select(-case)
+  mutate_at(vars(to, from), as.character) %>%
+  # remove orphan edges
+  inner_join(nodes_case_3, by = c("from" = "id", "to" = "id")) %>%
+  select(-case) 
 
 network_case_3 <- tbl_graph(nodes = nodes_case_3, edges = edges_case_3, directed = T) %>%
   activate(edges) %>%
@@ -267,20 +263,11 @@ network_case_3 <- tbl_graph(nodes = nodes_case_3, edges = edges_case_3, directed
   reroute(from = if_else(network == "idea_provider", to, from),
           to = if_else(network == "idea_provider", from, to)) 
 
+# save pre-processed data
 
-# plot networks
+save(nodes_geocode, edges_dist, network_case_1, network_case_2, network_case_3, file = "~/ownCloud/Innovation Network Analysis/Quantitative Data/pre_processed_data.RData")
 
-require(ggraph)
-
-subset <- c("predominantly_tacit_knowledge_provider", 
-            "predominantly_explicit_knowledge_provider", 
-            "idea_provider")
-
-ggraph(network_case_1 %>% activate(edges) %>% filter(network %in% subset), layout = "kk") +
-  geom_edge_link(aes(color = distance), arrow = arrow(length = unit(4, 'mm')), end_cap = circle(3, 'mm')) +
-  geom_node_point(size = 6) +
-  geom_node_text(aes(label = id), colour = "white", size = 4) +
-  theme_graph() + facet_wrap(~ network)
+################# end of script #######################
 
 
 
