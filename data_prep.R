@@ -200,8 +200,6 @@ nodes_case_1 <- nodes_geocode %>%
 edges_case_1 <- edges_dist %>%
   filter(case == 1) %>%
   mutate_at(vars(to, from), as.character) %>%
-  # remove orphan edges
-  inner_join(nodes_case_1, by = c("from" = "id", "to" = "id")) %>%
   select(-case) 
 
 
