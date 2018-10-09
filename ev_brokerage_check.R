@@ -7,6 +7,32 @@
 #                                                     #
 #######################################################
 
+
+# undirected network
+
+edgelist <- data.frame(from = c(1,1,1,2,2,2,3,3,3,3,4,4,4,4,5,5,5,6,6,6,7,7,8,8,8,8,9,
+                                         9,10,10,10,11,11,11,11,11,12,12,12,13,13,13,13,14,14,
+                                         14,14,15,15,15,16,16,17,17,17,18,18,18,18,19,19,20,20,
+                                         20,20,20,21,21,22,22,22,23,23,23,24,24,24,25,25,25,25),
+                                to = c(2,3,24,1,3,4,1,2,4,5,2,3,5,6,3,4,6,5,5,7,6,8,9,10,11,
+                                       14,8,10,9,8,11,10,8,12,14,13,11,14,13,11,12,14,15,8,11,
+                                       12,13,13,16,17,15,17,15,16,18,17,19,20,21,18,20,19,18,
+                                       21,25,22,18,20,20,25,23,24,25,22,1,25,23,24,23,22,20))
+
+g <- igraph::graph_from_edgelist(as.matrix(edgelist), directed = F) %>% simplify()
+
+g <- as_tbl_graph(g) %>%
+  activate(nodes) %>%
+  # compute brokerage
+  mutate(betweenness = centrality_betweenness(),
+         degree = centrality_degree(),
+         ev_condition = if_else(betweenness != 0, betweenness * 2 + graph_order() - 1, betweenness),
+         ev_brokerage = if_else(ev_condition != 0, ev_condition / degree, ev_condition))
+
+data <- g %>% as.tibble()
+
+
+
 # load campnet data
 
 require(RCurl)
@@ -25,20 +51,16 @@ g <- as_tbl_graph(campnet, directed = TRUE) %>% activate(nodes) %>% left_join(ca
 g <- g %>%
   activate(nodes) %>%
   # compute in-degree, out-degree, and betweenness centrality 
-  mutate(in_degree = centrality_degree(mode = "in"),
+  mutate(betweenness = centrality_betweenness(),
+         in_degree = centrality_degree(mode = "in"),
          out_degree = centrality_degree(mode = "out"),
-         betweenness = centrality_betweenness(),
          in_reach = local_size(order = graph_order(), mode = "in") - 1,
          out_reach = local_size(order = graph_order(), mode = "out") - 1) %>%
   # compute everett-valente brokerage score
-  mutate(ev_in = case_when(betweenness == 0 ~ if_else(betweenness + in_reach == 0,
-                                                      betweenness + in_reach,
-                                                      (betweenness + in_reach) / in_degree),
-                           betweenness != 0 ~ betweenness / in_degree),
-         ev_out = case_when(betweenness == 0 ~ if_else(betweenness + out_reach == 0,
-                                                       betweenness + out_reach,
-                                                       (betweenness + out_reach) / out_degree),
-                            betweenness != 0 ~ betweenness / out_degree),
+  mutate(ev_in = if_else(betweenness != 0, betweenness + in_reach, betweenness),
+         ev_in = if_else(ev_in != 0, ev_in / in_degree, ev_in),
+         ev_out = if_else(betweenness != 0, betweenness + out_reach, betweenness),
+         ev_out = if_else(ev_out != 0, ev_out / out_degree, ev_out),
          ev_brokerage = (ev_in + ev_out) / 2) 
 
 g %>% as.tibble()
