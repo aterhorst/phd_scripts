@@ -95,7 +95,7 @@ nodes_rescaled <- nodes_clean %>%
 
 require(ggmap)
 
-register_google(key = "API AIzaSyCLSTfR7wUOB2QxMaoAwIrhvKNKVgrjF28")
+register_google(key = "AIzaSyCLSTfR7wUOB2QxMaoAwIrhvKNKVgrjF28")
 
 nodes_geocode <- nodes_rescaled %>%
   # add country information for non-Australian residents
@@ -126,7 +126,7 @@ nodes_geocode <- nodes_rescaled %>%
   # generate postcode + country variable
   unite(place, work_location, country, sep = " ") %>%
   # geocode place
-  mutate_geocode(place, sensor = F, output = "latlon", source = "dsk", force = T) 
+  mutate_geocode(place, sensor = F, output = "latlon", source = "google", force = T) 
 
 # read in raw edge data  
 
@@ -174,7 +174,7 @@ edges_dist <- edges_rescale %>%
   # do calculations per row 
   rowwise() %>%
   # calculate great circle distance and threshold tacitness
-  mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0)) %>%
+  mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, to_lat)) / 1000, 0)) %>%
   # rename networks
   mutate(network = str_replace(network, "relationship_set_", ""),
          network = if_else(network == "knowledge_sharing" & tacitness >= 0.5, "predominantly_tacit_knowledge_provider", network),
@@ -285,7 +285,7 @@ geoproximity_case_1 <- network_case_1 %>%
               rename(to_lat = lat, to_lon = lon), by = c("id2" = "id")) %>%
   rowwise() %>%
   # compute great circle distance
-  mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0),
+  mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, to_lat)) / 1000, 0),
          log_distance = round(log1p(distance), 4)) %>%
   rename(from = id1, to = id2) %>%
   arrange(as.numeric(from), as.numeric(to)) %>%
@@ -318,7 +318,7 @@ geoproximity_case_2 <- network_case_2 %>%
               rename(to_lat = lat, to_lon = lon), by = c("id2" = "id")) %>%
   rowwise() %>%
   # compute great circle distance
-  mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0),
+  mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, to_lat)) / 1000, 0),
          log_distance = round(log1p(distance), 4)) %>%
   rename(from = id1, to = id2) %>%
   arrange(as.numeric(from), as.numeric(to)) %>%
@@ -351,7 +351,7 @@ geoproximity_case_3 <- network_case_3 %>%
               rename(to_lat = lat, to_lon = lon), by = c("id2" = "id")) %>%
   rowwise() %>%
   # compute great circle distance
-  mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0),
+  mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, to_lat)) / 1000, 0),
          log_distance = round(log1p(distance), 4)) %>%
   rename(from = id1, to = id2) %>%
   arrange(as.numeric(from), as.numeric(to)) %>%

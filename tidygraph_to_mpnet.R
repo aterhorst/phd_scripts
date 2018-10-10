@@ -142,7 +142,7 @@ write.matrix(adjaceny_matrix_report_case_1, file = "~/ownCloud/phd_data/case_1/r
 
 distance_matrix_case_1 <- geoproximity_case_1 %>%
   activate(edges) %>% 
-  igraph::get.adjacency(sparse = F, attr = "distance", type = "both", names = F)
+  igraph::get.adjacency(sparse = F, attr = "log_distance", type = "both", names = F)
 
 write.matrix(distance_matrix_case_1, file = "~/ownCloud/phd_data/case_1/distance_net.txt")
 
