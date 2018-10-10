@@ -11,10 +11,13 @@
 
 load("~/ownCloud/phd_data/pre_processed_data.RData")
 
+require(tidyverse)
+require(tidygraph)
+
 
 # *******************   case 1   ******************* #
 
-# actor attributes
+# export binary, continuous, and categorical actor attributes
 
 continuous_data_case_1 <- network_case_1 %>% 
   activate(nodes) %>%
@@ -58,7 +61,7 @@ binary_data_case_1 <- network_case_1 %>%
 
 write.table(binary_data_case_1, "~/ownCloud/phd_data/case_1/binary_data.txt", row.names = FALSE, col.names = TRUE, sep = "\t", quote = FALSE)
 
-# adjacency matrices
+# export adjacency matrices
 
 require(Matrix)
 require(MASS)
@@ -141,7 +144,7 @@ distance_matrix_case_1 <- geoproximity_case_1 %>%
   activate(edges) %>% 
   igraph::get.adjacency(sparse = F, attr = "log_distance", type = "upper", names = F)
 
-# dyadic co-variates
+# export dyadic co-variates
 
 fn <- "~/ownCloud/phd_data/case_1/dyadic_covariates.txt" 
 cat("", file = fn) # create empty file

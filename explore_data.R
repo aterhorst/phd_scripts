@@ -9,13 +9,13 @@
 
 # load pre-processed data
 
-load("~/ownCloud/Innovation Network Analysis/Quantitative Data/pre_processed_data.RData")
-
-
+load("~/ownCloud/phd_data/pre_processed_data.RData")
 
 # ***** compute centrality/brokerage measures ******* #
 
 require(tidygraph)
+
+
 
 tacit_network_case_1 <- network_case_1 %>%
   activate(edges) %>%
@@ -24,22 +24,17 @@ tacit_network_case_1 <- network_case_1 %>%
   # compute node measures (in-degree and out-degree centrality, EV brokerage score)
   activate(nodes) %>%
   # compute in-degree, out-degree, and betweenness centrality 
-  mutate(in_degree = centrality_degree(mode = "in"),
+  mutate(betweenness = centrality_betweenness(),
+         in_degree = centrality_degree(mode = "in"),
          out_degree = centrality_degree(mode = "out"),
-         betweenness = centrality_betweenness(),
          in_reach = local_size(order = graph_order(), mode = "in") - 1,
          out_reach = local_size(order = graph_order(), mode = "out") - 1) %>%
   # compute everett-valente brokerage score
-  mutate(ev_in = case_when(betweenness == 0 ~ if_else(betweenness + in_reach == 0,
-                                                      betweenness + in_reach,
-                                                      (betweenness + in_reach) / in_degree),
-                           betweenness != 0 ~ betweenness / in_degree),
-         ev_out = case_when(betweenness == 0 ~ if_else(betweenness + out_reach == 0,
-                                                       betweenness + out_reach,
-                                                       (betweenness + out_reach) / out_degree),
-                            betweenness != 0 ~ betweenness / out_degree),
-         ev_brokerage = (ev_in + ev_out) / 2) %>%
-  select(-c(in_reach, out_reach, ev_in, ev_out))
+  mutate(ev_in = if_else(betweenness != 0, betweenness + in_reach, betweenness),
+         ev_in = if_else(ev_in != 0, ev_in / in_degree, ev_in),
+         ev_out = if_else(betweenness != 0, betweenness + out_reach, betweenness),
+         ev_out = if_else(ev_out != 0, ev_out / out_degree, ev_out),
+         ev_brokerage = (ev_in + ev_out) / 2)
 
 
 explicit_network_case_1 <- network_case_1 %>%
@@ -47,22 +42,17 @@ explicit_network_case_1 <- network_case_1 %>%
   filter(network == "predominantly_explicit_knowledge_provider") %>%
   activate(nodes) %>%
   # compute in-degree, out-degree, and betweenness centrality 
-  mutate(in_degree = centrality_degree(mode = "in"),
+  mutate(betweenness = centrality_betweenness(),
+         in_degree = centrality_degree(mode = "in"),
          out_degree = centrality_degree(mode = "out"),
-         betweenness = centrality_betweenness(),
          in_reach = local_size(order = graph_order(), mode = "in") - 1,
          out_reach = local_size(order = graph_order(), mode = "out") - 1) %>%
   # compute everett-valente brokerage score
-  mutate(ev_in = case_when(betweenness == 0 ~ if_else(betweenness + in_reach == 0,
-                                                      betweenness + in_reach,
-                                                      (betweenness + in_reach) / in_degree),
-                           betweenness != 0 ~ betweenness / in_degree),
-         ev_out = case_when(betweenness == 0 ~ if_else(betweenness + out_reach == 0,
-                                                       betweenness + out_reach,
-                                                       (betweenness + out_reach) / out_degree),
-                            betweenness != 0 ~ betweenness / out_degree),
-         ev_brokerage = (ev_in + ev_out) / 2) %>%
-  select(-c(in_reach, out_reach, ev_in, ev_out))
+  mutate(ev_in = if_else(betweenness != 0, betweenness + in_reach, betweenness),
+         ev_in = if_else(ev_in != 0, ev_in / in_degree, ev_in),
+         ev_out = if_else(betweenness != 0, betweenness + out_reach, betweenness),
+         ev_out = if_else(ev_out != 0, ev_out / out_degree, ev_out),
+         ev_brokerage = (ev_in + ev_out) / 2) 
 
 
 idea_network_case_1 <- network_case_1 %>%
@@ -70,22 +60,17 @@ idea_network_case_1 <- network_case_1 %>%
   filter(network == "idea_provider") %>%
   activate(nodes) %>%
   # compute in-degree, out-degree, and betweenness centrality 
-  mutate(in_degree = centrality_degree(mode = "in"),
+  mutate(betweenness = centrality_betweenness(),
+         in_degree = centrality_degree(mode = "in"),
          out_degree = centrality_degree(mode = "out"),
-         betweenness = centrality_betweenness(),
          in_reach = local_size(order = graph_order(), mode = "in") - 1,
          out_reach = local_size(order = graph_order(), mode = "out") - 1) %>%
   # compute everett-valente brokerage score
-  mutate(ev_in = case_when(betweenness == 0 ~ if_else(betweenness + in_reach == 0,
-                                                      betweenness + in_reach,
-                                                      (betweenness + in_reach) / in_degree),
-                           betweenness != 0 ~ betweenness / in_degree),
-         ev_out = case_when(betweenness == 0 ~ if_else(betweenness + out_reach == 0,
-                                                       betweenness + out_reach,
-                                                       (betweenness + out_reach) / out_degree),
-                            betweenness != 0 ~ betweenness / out_degree),
-         ev_brokerage = (ev_in + ev_out) / 2) %>%
-  select(-c(in_reach, out_reach, ev_in, ev_out))
+  mutate(ev_in = if_else(betweenness != 0, betweenness + in_reach, betweenness),
+         ev_in = if_else(ev_in != 0, ev_in / in_degree, ev_in),
+         ev_out = if_else(betweenness != 0, betweenness + out_reach, betweenness),
+         ev_out = if_else(ev_out != 0, ev_out / out_degree, ev_out),
+         ev_brokerage = (ev_in + ev_out) / 2) 
 
 # plot networks
 
