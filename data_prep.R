@@ -9,13 +9,10 @@
 # read in raw node data
 
 require(readxl)
-require(httr)
 
-node_data_case_1 <- read_excel(GET("http://ter053:Andr3w.7@https://bitbucket.csiro.au/projects/ALT/repos/phd_data/raw/case_1/surveydata.xlsx"), sheet = 1) 
-
-node_data_case_1 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 1/surveydata.xlsx", sheet = 1)
-node_data_case_2 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 2/surveydata.xlsx", sheet = 1)
-node_data_case_3 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 3/surveydata.xlsx", sheet = 1)
+node_data_case_1 <- read_excel("~/ownCloud/phd_data/case_1/surveydata_case_1.xlsx", sheet = 1)
+node_data_case_2 <- read_excel("~/ownCloud/phd_data/case_2/surveydata_case_2.xlsx", sheet = 1)
+node_data_case_3 <- read_excel("~/ownCloud/phd_data/case_3/surveydata_case_3.xlsx", sheet = 1)
 
 # merge node data
 
@@ -29,11 +26,9 @@ nodes <- bind_rows(node_data_case_1 %>% mutate(case = 1) %>% rename(Occupation =
 
 # read in organisational affiliation data
 
-affiliation <- read.csv("~/ownCloud/Innovation Network Analysis/Quantitative Data/org_affiliation.csv", stringsAsFactors = F)
+affiliation <- read.csv("~/ownCloud/phd_data/org_affiliation.csv", stringsAsFactors = F)
 
 # preliminary cleaning
-
-require(stringr)
 
 nodes_clean <- nodes %>%
   # extract numerical values
@@ -88,20 +83,19 @@ nodes_rescaled <- nodes_clean %>%
          controlled_motivation = round(mean(c(extrinsic_regulation_social, extrinsic_regulation_material, introjected_regulation)), digits = 2),
          autonomous_motivation = round(mean(c(identified_regulation, intrinsic_motivation)), digits = 2)) %>%
   # subset aggregated scale items 
-  select(case, id, name, gender, age, work_location, education_level, broad_education_field, occupation_class, work_experience, current_tenure,
+  dplyr::select(case, id, name, gender, age, work_location, education_level, broad_education_field, occupation_class, work_experience, current_tenure,
          personality_openness, personality_conscientiousness, personality_agreeableness, job_competence, creative_self_efficacy, job_competence,
          amotivation, extrinsic_regulation_social, extrinsic_regulation_material, introjected_regulation, identified_regulation, intrinsic_motivation,
          identification_group, identification_org, identification_collab, controlled_motivation, autonomous_motivation) %>%
   # add organisation affiation
-  inner_join(affiliation, by = c("case", "name")) %>%
-  # remove rows containing NA values
-  drop_na() 
+  left_join(affiliation, by = c("case" = "case", "name" = "name")) 
+
 
 # geocode nodes
 
 require(ggmap)
 
-register_google(key = "")
+register_google(key = "API AIzaSyCLSTfR7wUOB2QxMaoAwIrhvKNKVgrjF28")
 
 nodes_geocode <- nodes_rescaled %>%
   # add country information for non-Australian residents
@@ -132,13 +126,13 @@ nodes_geocode <- nodes_rescaled %>%
   # generate postcode + country variable
   unite(place, work_location, country, sep = " ") %>%
   # geocode place
-  mutate_geocode(place, sensor = F, output = "latlon", source = "google", force = T)
+  mutate_geocode(place, sensor = F, output = "latlon", source = "dsk", force = T) 
 
 # read in raw edge data  
 
-edge_data_case_1 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 1/surveydata.xlsx", sheet = 2)
-edge_data_case_2 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 2/surveydata.xlsx", sheet = 2)
-edge_data_case_3 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 3/surveydata.xlsx", sheet = 2)
+edge_data_case_1 <- read_excel("~/ownCloud/phd_data/case_1/surveydata_case_1.xlsx", sheet = 2)
+edge_data_case_2 <- read_excel("~/ownCloud/phd_data/case_2/surveydata_case_2.xlsx", sheet = 2)
+edge_data_case_3 <- read_excel("~/ownCloud/phd_data/case_3/surveydata_case_3.xlsx", sheet = 2)
 
 # merge edge data
 
@@ -171,7 +165,7 @@ edges_dist <- edges_rescale %>%
            relationship_set_affectbased_trust,
            relationship_set_cognitionbased_trust,
            relationship_set_prior_relationships,
-           relationship_set_managers)) %>%
+           relationship_set_managers))%>%
   # remove redundant data
   filter(flag == 1) %>%
   # geocode from, to
@@ -204,7 +198,6 @@ edges_case_1 <- edges_dist %>%
   filter(case == 1) %>%
   mutate_at(vars(to, from), as.character) %>%
   select(-case) 
-
 
 network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = edges_case_1, directed = T) %>%
   activate(edges) %>%
@@ -272,7 +265,6 @@ network_case_3 <- tbl_graph(nodes = nodes_case_3, edges = edges_case_3, directed
 geoproximity_case_1 <- network_case_1 %>%
   activate(nodes) %>%
   as.tibble() %>%
-  select(id) %>%
   # create two new columns with the same ids
   mutate(id1 = id, id2 = id) %>%
   # expand into all combinations of names
@@ -294,8 +286,9 @@ geoproximity_case_1 <- network_case_1 %>%
   rowwise() %>%
   # compute great circle distance
   mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0),
-         log_distance = round(log1p(distance), 2)) %>%
+         log_distance = round(log1p(distance), 4)) %>%
   rename(from = id1, to = id2) %>%
+  arrange(as.numeric(from), as.numeric(to)) %>%
   select(from, to, distance, log_distance) %>%
   as_tbl_graph(directed = F)
 
@@ -326,8 +319,9 @@ geoproximity_case_2 <- network_case_2 %>%
   rowwise() %>%
   # compute great circle distance
   mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0),
-         log_distance = round(log1p(distance), 2)) %>%
+         log_distance = round(log1p(distance), 4)) %>%
   rename(from = id1, to = id2) %>%
+  arrange(as.numeric(from), as.numeric(to)) %>%
   select(from, to, distance, log_distance) %>%
   as_tbl_graph(directed = F)
 
@@ -358,8 +352,9 @@ geoproximity_case_3 <- network_case_3 %>%
   rowwise() %>%
   # compute great circle distance
   mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0),
-         log_distance = round(log1p(distance), 2)) %>%
+         log_distance = round(log1p(distance), 4)) %>%
   rename(from = id1, to = id2) %>%
+  arrange(as.numeric(from), as.numeric(to)) %>%
   select(from, to, distance, log_distance) %>%
   as_tbl_graph(directed = F)
 

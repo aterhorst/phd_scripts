@@ -142,7 +142,9 @@ write.matrix(adjaceny_matrix_report_case_1, file = "~/ownCloud/phd_data/case_1/r
 
 distance_matrix_case_1 <- geoproximity_case_1 %>%
   activate(edges) %>% 
-  igraph::get.adjacency(sparse = F, attr = "log_distance", type = "upper", names = F)
+  igraph::get.adjacency(sparse = F, attr = "log_distance", type = "both", names = F)
+
+write.matrix(distance_matrix_case_1, file = "~/ownCloud/phd_data/case_1/distance_net.txt")
 
 # export dyadic co-variates
 
@@ -165,7 +167,7 @@ write.table(as.data.frame(as.matrix(adjaceny_matrix_prior_case_1)), file = fn, a
 cat("report_to_net \n", file = fn, append = T)
 write.table(as.data.frame(as.matrix(adjaceny_matrix_report_case_1)), file = fn, append = T, sep = "\t", row.names = FALSE, col.names = FALSE)
 cat("geoproximity_net \n", file = fn, append = T)
-write.table(as.data.frame(as.matrix(distance_matrix_case_1)), file = fn, sep = "\t", row.names = F, col.names = F)
+write.table(as.data.frame(as.matrix(distance_matrix_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
 
 
 # *******************   case 2   ******************* #
