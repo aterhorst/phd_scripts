@@ -11,9 +11,9 @@
 
 load("~/ownCloud/Innovation Network Analysis/Quantitative Data/pre_processed_data.RData")
 
-# case 1
 
-# compute centrality/brokerage measures
+
+# ***** compute centrality/brokerage measures ******* #
 
 require(tidygraph)
 

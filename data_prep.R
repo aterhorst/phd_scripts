@@ -9,6 +9,9 @@
 # read in raw node data
 
 require(readxl)
+require(httr)
+
+node_data_case_1 <- read_excel(GET("http://ter053:Andr3w.7@https://bitbucket.csiro.au/projects/ALT/repos/phd_data/raw/case_1/surveydata.xlsx"), sheet = 1) 
 
 node_data_case_1 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 1/surveydata.xlsx", sheet = 1)
 node_data_case_2 <- read_excel("~/ownCloud/Innovation Network Analysis/Quantitative Data/Case 2/surveydata.xlsx", sheet = 1)
@@ -261,9 +264,118 @@ network_case_3 <- tbl_graph(nodes = nodes_case_3, edges = edges_case_3, directed
   reroute(from = if_else(network == "idea_provider", to, from),
           to = if_else(network == "idea_provider", from, to)) 
 
-# save pre-processed data
 
-save(nodes_geocode, edges_dist, network_case_1, network_case_2, network_case_3, file = "~/ownCloud/Innovation Network Analysis/Quantitative Data/pre_processed_data.RData")
+# *********** generate proximity matrices *********** # 
+
+# case 1
+
+geoproximity_case_1 <- network_case_1 %>%
+  activate(nodes) %>%
+  as.tibble() %>%
+  select(id) %>%
+  # create two new columns with the same ids
+  mutate(id1 = id, id2 = id) %>%
+  # expand into all combinations of names
+  expand(id1, id2) %>%
+  # remove id1 equals to id2
+  filter(id1 != id2) %>%
+  # add lon, lat coords for id1
+  left_join(network_case_1 %>% 
+              activate(nodes) %>% 
+              as.tibble() %>% 
+              select(id, lon, lat) %>%
+              rename(from_lat = lat, from_lon = lon), by = c("id1" = "id")) %>%
+  # add lon, lat coords for id2
+  left_join(network_case_1 %>% 
+              activate(nodes) %>% 
+              as.tibble() %>% 
+              select(id, lon, lat) %>%
+              rename(to_lat = lat, to_lon = lon), by = c("id2" = "id")) %>%
+  rowwise() %>%
+  # compute great circle distance
+  mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0),
+         log_distance = round(log1p(distance), 2)) %>%
+  rename(from = id1, to = id2) %>%
+  select(from, to, distance, log_distance) %>%
+  as_tbl_graph(directed = F)
+
+# case 2
+
+geoproximity_case_2 <- network_case_2 %>%
+  activate(nodes) %>%
+  as.tibble() %>%
+  select(id) %>%
+  # create two new columns with the same ids
+  mutate(id1 = id, id2 = id) %>%
+  # expand into all combinations of names
+  expand(id1, id2) %>%
+  # remove id1 equals to id2
+  filter(id1 != id2) %>%
+  # add lon, lat coords for id1
+  left_join(network_case_2 %>% 
+              activate(nodes) %>% 
+              as.tibble() %>% 
+              select(id, lon, lat) %>%
+              rename(from_lat = lat, from_lon = lon), by = c("id1" = "id")) %>%
+  # add lon, lat coords for id2
+  left_join(network_case_2 %>% 
+              activate(nodes) %>% 
+              as.tibble() %>% 
+              select(id, lon, lat) %>%
+              rename(to_lat = lat, to_lon = lon), by = c("id2" = "id")) %>%
+  rowwise() %>%
+  # compute great circle distance
+  mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0),
+         log_distance = round(log1p(distance), 2)) %>%
+  rename(from = id1, to = id2) %>%
+  select(from, to, distance, log_distance) %>%
+  as_tbl_graph(directed = F)
+
+# case 3
+
+geoproximity_case_3 <- network_case_3 %>%
+  activate(nodes) %>%
+  as.tibble() %>%
+  select(id) %>%
+  # create two new columns with the same ids
+  mutate(id1 = id, id2 = id) %>%
+  # expand into all combinations of names
+  expand(id1, id2) %>%
+  # remove id1 equals to id2
+  filter(id1 != id2) %>%
+  # add lon, lat coords for id1
+  left_join(network_case_3 %>% 
+              activate(nodes) %>% 
+              as.tibble() %>% 
+              select(id, lon, lat) %>%
+              rename(from_lat = lat, from_lon = lon), by = c("id1" = "id")) %>%
+  # add lon, lat coords for id2
+  left_join(network_case_3 %>% 
+              activate(nodes) %>% 
+              as.tibble() %>% 
+              select(id, lon, lat) %>%
+              rename(to_lat = lat, to_lon = lon), by = c("id2" = "id")) %>%
+  rowwise() %>%
+  # compute great circle distance
+  mutate(distance = round(distHaversine(c(from_lon, from_lat), c(to_lon, from_lat)) / 1000, 0),
+         log_distance = round(log1p(distance), 2)) %>%
+  rename(from = id1, to = id2) %>%
+  select(from, to, distance, log_distance) %>%
+  as_tbl_graph(directed = F)
+
+ 
+# ************* save pre-processed data ************* #
+
+save(nodes_geocode, 
+     edges_dist, 
+     network_case_1, 
+     network_case_2, 
+     network_case_3, 
+     geoproximity_case_1, 
+     geoproximity_case_2, 
+     geoproximity_case_3, 
+     file = "~/ownCloud/phd_data/pre_processed_data.RData")
+
 
 ################# end of script #######################
 

@@ -1,14 +1,25 @@
 #######################################################
 #                                                     #
-#              R script to check E-V brokerage        #
-#              is being correctly calculated          #
-#                 Version 2018-10-07                  #
-#                (c) Andrew Terhorst                  #
+#           R script to check E-V brokerage           #
+#            is being correctly calculated            #
+#               Version 2018-10-10                    #
+#              (c) Andrew Terhorst                    #
 #                                                     #
 #######################################################
 
+#' @article{everett2016bridging,
+#'   title={Bridging, brokerage and betweenness},
+#'   author={Everett, Martin G and Valente, Thomas W},
+#'   journal={Social Networks},
+#'   volume={44},
+#'   pages={202--208},
+#'   year={2016},
+#'   publisher={Elsevier}
+#' }
 
-# undirected network
+# **************  undirected network  ****************#
+
+# create granovetter hypothetical network edgelist
 
 edgelist <- data.frame(from = c(1,1,1,2,2,2,3,3,3,3,4,4,4,4,5,5,5,6,6,6,7,7,8,8,8,8,9,
                                          9,10,10,10,11,11,11,11,11,12,12,12,13,13,13,13,14,14,
@@ -18,8 +29,11 @@ edgelist <- data.frame(from = c(1,1,1,2,2,2,3,3,3,3,4,4,4,4,5,5,5,6,6,6,7,7,8,8,
                                        14,8,10,9,8,11,10,8,12,14,13,11,14,13,11,12,14,15,8,11,
                                        12,13,13,16,17,15,17,15,16,18,17,19,20,21,18,20,19,18,
                                        21,25,22,18,20,20,25,23,24,25,22,1,25,23,24,23,22,20))
+# create graph object
 
 g <- igraph::graph_from_edgelist(as.matrix(edgelist), directed = F) %>% simplify()
+
+# calculate EV brokerage score
 
 g <- as_tbl_graph(g) %>%
   activate(nodes) %>%
@@ -29,9 +43,12 @@ g <- as_tbl_graph(g) %>%
          ev_condition = if_else(betweenness != 0, betweenness * 2 + graph_order() - 1, betweenness),
          ev_brokerage = if_else(ev_condition != 0, ev_condition / degree, ev_condition))
 
-data <- g %>% as.tibble()
+# present results
+
+g %>% as.tibble()
 
 
+# ***************  directed network  *****************#
 
 # load campnet data
 
@@ -46,7 +63,7 @@ require(tidygraph)
 
 g <- as_tbl_graph(campnet, directed = TRUE) %>% activate(nodes) %>% left_join(campnet.attr, by = c("name" = "Name"))
 
-# compute node measures (in-degree and out-degree centrality, EV brokerage score)
+# calculate EV brokerage score
 
 g <- g %>%
   activate(nodes) %>%
@@ -63,6 +80,9 @@ g <- g %>%
          ev_out = if_else(ev_out != 0, ev_out / out_degree, ev_out),
          ev_brokerage = (ev_in + ev_out) / 2) 
 
+# present results
+
 g %>% as.tibble()
 
+# *****************  end of script  ******************#
 
