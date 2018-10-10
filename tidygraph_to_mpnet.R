@@ -43,7 +43,7 @@ continuous_data_case_1 <- network_case_1 %>%
          identification_org,
          identification_collab)
 
-write.table(continuous_data_case_1, "~/ownCloud/phd_data/case_1/continuous_data.txt", row.names = FALSE, col.names = TRUE, sep = "\t", quote = FALSE)
+write.table(continuous_data_case_1, "~/ownCloud/phd_data/case_1/continuous_data.txt", row.names = F, col.names = T, sep = "\t", quote = F)
 
 categorical_data_case_1 <- network_case_1 %>%
   activate(nodes) %>%
@@ -52,14 +52,14 @@ categorical_data_case_1 <- network_case_1 %>%
          occupation_class,
          org_affiliation)
 
-write.table(categorical_data_case_1, "~/ownCloud/phd_data/case_1/categorical_data.txt", row.names = FALSE, col.names = TRUE, sep = "\t", quote = FALSE)
+write.table(categorical_data_case_1, "~/ownCloud/phd_data/case_1/categorical_data.txt", row.names = F, col.names = T, sep = "\t", quote = F)
 
 binary_data_case_1 <- network_case_1 %>%
   activate(nodes) %>%
   as.tibble() %>%
   select(gender)
 
-write.table(binary_data_case_1, "~/ownCloud/phd_data/case_1/binary_data.txt", row.names = FALSE, col.names = TRUE, sep = "\t", quote = FALSE)
+write.table(binary_data_case_1, "~/ownCloud/phd_data/case_1/binary_data.txt", row.names = F, col.names = T, sep = "\t", quote = F)
 
 # export adjacency matrices
 
@@ -71,7 +71,7 @@ require(MASS)
 adjaceny_matrix_tacit_case_1 <- network_case_1 %>%
   activate(edges) %>%
   filter(network == "predominantly_tacit_knowledge_provider") %>%
-  igraph::get.adjacency(type = "both", names = FALSE)
+  igraph::get.adjacency(type = "both", names = F)
 
 write.matrix(adjaceny_matrix_tacit_case_1, file = "~/ownCloud/phd_data/case_1/tacit_knowledge_net.txt")
 
@@ -80,7 +80,7 @@ write.matrix(adjaceny_matrix_tacit_case_1, file = "~/ownCloud/phd_data/case_1/ta
 adjaceny_matrix_explicit_case_1 <- network_case_1 %>%
   activate(edges) %>%
   filter(network == "predominantly_explicit_knowledge_provider") %>%
-  igraph::get.adjacency(type = "both", names = FALSE)
+  igraph::get.adjacency(type = "both", names = F)
 
 write.matrix(adjaceny_matrix_explicit_case_1, file = "~/ownCloud/phd_data/case_1/explicit_knowledge_net.txt")
 
@@ -89,7 +89,7 @@ write.matrix(adjaceny_matrix_explicit_case_1, file = "~/ownCloud/phd_data/case_1
 adjaceny_matrix_ideation_case_1 <- network_case_1 %>%
   activate(edges) %>%
   filter(network == "idea_provider") %>%
-  igraph::get.adjacency(type = "both", names = FALSE)
+  igraph::get.adjacency(type = "both", names = F)
 
 write.matrix(adjaceny_matrix_ideation_case_1, file = "~/ownCloud/phd_data/case_1/idea_provider_net.txt")
 
@@ -98,7 +98,7 @@ write.matrix(adjaceny_matrix_ideation_case_1, file = "~/ownCloud/phd_data/case_1
 adjaceny_matrix_realisation_case_1 <- network_case_1 %>%
   activate(edges) %>%
   filter(network == "idea_realisation") %>%
-  igraph::get.adjacency(type = "both", names = FALSE)
+  igraph::get.adjacency(type = "both", names = F)
 
 write.matrix(adjaceny_matrix_realisation_case_1, file = "~/ownCloud/phd_data/case_1/idea_realisation_net.txt")
 
@@ -107,7 +107,7 @@ write.matrix(adjaceny_matrix_realisation_case_1, file = "~/ownCloud/phd_data/cas
 adjaceny_matrix_affect_case_1 <- network_case_1 %>%
   activate(edges) %>%
   filter(network == "affectbased_trust") %>%
-  igraph::get.adjacency(type = "both", names = FALSE)
+  igraph::get.adjacency(type = "both", names = F)
 
 write.matrix(adjaceny_matrix_affect_case_1, file = "~/ownCloud/phd_data/case_1/affect_based_trust_net.txt")
 
@@ -116,7 +116,7 @@ write.matrix(adjaceny_matrix_affect_case_1, file = "~/ownCloud/phd_data/case_1/a
 adjaceny_matrix_cognition_case_1 <- network_case_1 %>%
   activate(edges) %>%
   filter(network == "cognitionbased_trust") %>%
-  igraph::get.adjacency(type = "both", names = FALSE)
+  igraph::get.adjacency(type = "both", names = F)
 
 write.matrix(adjaceny_matrix_cognition_case_1, file = "~/ownCloud/phd_data/case_1/cognition_based_trust_net.txt")
 
@@ -125,7 +125,7 @@ write.matrix(adjaceny_matrix_cognition_case_1, file = "~/ownCloud/phd_data/case_
 adjaceny_matrix_prior_case_1 <- network_case_1 %>%
   activate(edges) %>%
   filter(network == "prior_relationships") %>%
-  igraph::get.adjacency(type = "both", names = FALSE)
+  igraph::get.adjacency(type = "both", names = F)
 
 write.matrix(adjaceny_matrix_prior_case_1, file = "~/ownCloud/phd_data/case_1/prior_relationships_net.txt")
 
@@ -134,7 +134,7 @@ write.matrix(adjaceny_matrix_prior_case_1, file = "~/ownCloud/phd_data/case_1/pr
 adjaceny_matrix_report_case_1 <- network_case_1 %>%
   activate(edges) %>%
   filter(network == "managers") %>%
-  igraph::get.adjacency(type = "both", names = FALSE)
+  igraph::get.adjacency(type = "both", names = F)
 
 write.matrix(adjaceny_matrix_report_case_1, file = "~/ownCloud/phd_data/case_1/report_to_net.txt")
 
@@ -142,7 +142,7 @@ write.matrix(adjaceny_matrix_report_case_1, file = "~/ownCloud/phd_data/case_1/r
 
 distance_matrix_case_1 <- geoproximity_case_1 %>%
   activate(edges) %>% 
-  igraph::get.adjacency(sparse = F, attr = "log_distance", type = "both", names = F)
+  igraph::get.adjacency(sparse = F, attr = "distance", type = "both", names = F)
 
 write.matrix(distance_matrix_case_1, file = "~/ownCloud/phd_data/case_1/distance_net.txt")
 
@@ -151,21 +151,21 @@ write.matrix(distance_matrix_case_1, file = "~/ownCloud/phd_data/case_1/distance
 fn <- "~/ownCloud/phd_data/case_1/dyadic_covariates.txt" 
 cat("", file = fn) # create empty file
 cat("tacit_knowledge_net \n", file = fn, append = T)
-write.table(as.data.frame(as.matrix(adjaceny_matrix_tacit_case_1)), file = fn, append = T, sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(as.data.frame(as.matrix(adjaceny_matrix_tacit_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
 cat("explicit_knowledge_net \n", file = fn, append = T)
-write.table(as.data.frame(as.matrix(adjaceny_matrix_explicit_case_1)), file = fn, append = T, sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(as.data.frame(as.matrix(adjaceny_matrix_explicit_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
 cat("idea_provider_net \n", file = fn, append = T)
-write.table(as.data.frame(as.matrix(adjaceny_matrix_ideation_case_1)), file = fn, append = T, sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(as.data.frame(as.matrix(adjaceny_matrix_ideation_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
 cat("idea_realisation_net \n", file = fn, append = T)
-write.table(as.data.frame(as.matrix(adjaceny_matrix_realisation_case_1)), file = fn, append = T, sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(as.data.frame(as.matrix(adjaceny_matrix_realisation_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
 cat("affect_based_trust_net \n", file = fn, append = T)
-write.table(as.data.frame(as.matrix(adjaceny_matrix_affect_case_1)), file = fn, append = T, sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(as.data.frame(as.matrix(adjaceny_matrix_affect_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
 cat("cognition_based_tust_net \n", file = fn, append = T)
-write.table(as.data.frame(as.matrix(adjaceny_matrix_cognition_case_1)), file = fn, append = T, sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(as.data.frame(as.matrix(adjaceny_matrix_cognition_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
 cat("prior_relationships_net \n", file = fn, append = T)
-write.table(as.data.frame(as.matrix(adjaceny_matrix_prior_case_1)), file = fn, append = T, sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(as.data.frame(as.matrix(adjaceny_matrix_prior_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
 cat("report_to_net \n", file = fn, append = T)
-write.table(as.data.frame(as.matrix(adjaceny_matrix_report_case_1)), file = fn, append = T, sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(as.data.frame(as.matrix(adjaceny_matrix_report_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
 cat("geoproximity_net \n", file = fn, append = T)
 write.table(as.data.frame(as.matrix(distance_matrix_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
 
