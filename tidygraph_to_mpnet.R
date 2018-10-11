@@ -163,7 +163,7 @@ cat("prior_relationships_net \n", file = fn, append = T)
 write.table(as.data.frame(as.matrix(adjaceny_matrix_prior_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
 cat("report_to_net \n", file = fn, append = T)
 write.table(as.data.frame(as.matrix(adjaceny_matrix_report_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
-cat("geoproximity_net \n", file = fn, append = T)
+cat("log_geoproximity_net \n", file = fn, append = T)
 write.table(as.data.frame(as.matrix(distance_matrix_case_1)), file = fn, append = T, sep = "\t", row.names = F, col.names = F)
 
 

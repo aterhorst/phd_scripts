@@ -6,13 +6,27 @@
 #                                                     #
 #######################################################
 
+# *************** process node data ***************** # 
+
 # read in raw node data
 
 require(readxl)
+require(httr)
 
-node_data_case_1 <- read_excel("~/ownCloud/phd_data/case_1/surveydata_case_1.xlsx", sheet = 1)
-node_data_case_2 <- read_excel("~/ownCloud/phd_data/case_2/surveydata_case_2.xlsx", sheet = 1)
-node_data_case_3 <- read_excel("~/ownCloud/phd_data/case_3/surveydata_case_3.xlsx", sheet = 1)
+creds <- authenticate("user", "passwd")
+
+url <- "https://bitbucket.csiro.au/projects/ALT/repos/phd_data/raw/case_1/surveydata_case_1.xlsx"
+GET(url, creds, write_disk(tf <- tempfile(fileext = ".xlsx")))
+node_data_case_1 <- read_excel(tf, sheet = 1)
+
+url <- "https://bitbucket.csiro.au/projects/ALT/repos/phd_data/raw/case_2/surveydata_case_2.xlsx"
+GET(url, creds, write_disk(tf <- tempfile(fileext = ".xlsx")))
+node_data_case_2 <- read_excel(tf, sheet = 1)
+
+url <- "https://bitbucket.csiro.au/projects/ALT/repos/phd_data/raw/case_3/surveydata_case_3.xlsx"
+GET(url, creds, write_disk(tf <- tempfile(fileext = ".xlsx")))
+node_data_case_3 <- read_excel(tf, sheet = 1)
+
 
 # merge node data
 
@@ -26,7 +40,9 @@ nodes <- bind_rows(node_data_case_1 %>% mutate(case = 1) %>% rename(Occupation =
 
 # read in organisational affiliation data
 
-affiliation <- read.csv("~/ownCloud/phd_data/org_affiliation.csv", stringsAsFactors = F)
+url <- "https://bitbucket.csiro.au/projects/ALT/repos/phd_data/raw/org_affiliation.csv"
+GET(url, creds, write_disk(tf <- tempfile(fileext = ".csv")))
+affiliation <- read.csv(tf, stringsAsFactors = F)
 
 # preliminary cleaning
 
@@ -95,7 +111,7 @@ nodes_rescaled <- nodes_clean %>%
 
 require(ggmap)
 
-register_google(key = "AIzaSyCLSTfR7wUOB2QxMaoAwIrhvKNKVgrjF28")
+register_google(key = "")
 
 nodes_geocode <- nodes_rescaled %>%
   # add country information for non-Australian residents
@@ -128,11 +144,21 @@ nodes_geocode <- nodes_rescaled %>%
   # geocode place
   mutate_geocode(place, sensor = F, output = "latlon", source = "google", force = T) 
 
+# *************** process edge data ***************** # 
+
 # read in raw edge data  
 
-edge_data_case_1 <- read_excel("~/ownCloud/phd_data/case_1/surveydata_case_1.xlsx", sheet = 2)
-edge_data_case_2 <- read_excel("~/ownCloud/phd_data/case_2/surveydata_case_2.xlsx", sheet = 2)
-edge_data_case_3 <- read_excel("~/ownCloud/phd_data/case_3/surveydata_case_3.xlsx", sheet = 2)
+url <- "https://bitbucket.csiro.au/projects/ALT/repos/phd_data/raw/case_1/surveydata_case_1.xlsx"
+GET(url, creds, write_disk(tf <- tempfile(fileext = ".xlsx")))
+edge_data_case_1 <- read_excel(tf, sheet = 2)
+
+url <- "https://bitbucket.csiro.au/projects/ALT/repos/phd_data/raw/case_2/surveydata_case_2.xlsx"
+GET(url, creds, write_disk(tf <- tempfile(fileext = ".xlsx")))
+edge_data_case_2 <- read_excel(tf, sheet = 2)
+
+url <- "https://bitbucket.csiro.au/projects/ALT/repos/phd_data/raw/case_3/surveydata_case_3.xlsx"
+GET(url, creds, write_disk(tf <- tempfile(fileext = ".xlsx")))
+edge_data_case_3 <- read_excel(tf, sheet = 2)
 
 # merge edge data
 
@@ -183,7 +209,7 @@ edges_dist <- edges_rescale %>%
   # subset columns
   select(case, from, to, network, tacitness, distance) 
 
-# build multilayer networks for each case
+# ***************** build networks ****************** # 
 
 require(tidygraph)
 
@@ -371,6 +397,7 @@ save(nodes_geocode,
      geoproximity_case_3, 
      file = "~/ownCloud/phd_data/pre_processed_data.RData")
 
+unlink(tf)
 
 ################# end of script #######################
 
