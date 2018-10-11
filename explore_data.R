@@ -11,11 +11,50 @@
 
 load("~/ownCloud/phd_data/pre_processed_data.RData")
 
-# ***** compute centrality/brokerage measures ******* #
+# ********* correlation between scale items ********** #
+
+require(ggcorrplot)
+
+# extract scale items
+
+dat <- nodes_geocode %>% 
+  select(-c(case, 
+            id, 
+            name, 
+            gender, 
+            age, 
+            place, 
+            education_level, 
+            broad_education_field, 
+            occupation_class, 
+            work_experience,
+            current_tenure,
+            org_affiliation,
+            lon,
+            lat))
+
+# compute correlation matrix
+
+corr <- round(cor(dat), 1)
+
+# compute correlation matrix of p-values
+
+p.mat <- cor_pmat(dat)
+
+# visualise correlation matrix
+
+ggcorrplot(corr, method = "circle", type = "upper")
+ggcorrplot(corr, hc.order = TRUE, outline.col = "white")
+ggcorrplot(corr, hc.order = TRUE, type = "lower",
+           lab = TRUE)
+
+ggcorrplot(corr, p.mat = p.mat, hc.order = TRUE,
+           type = "lower", insig = "blank", method = "circle")
+
+
+# ****** compute centrality/brokerage measures ****** #
 
 require(tidygraph)
-
-
 
 tacit_network_case_1 <- network_case_1 %>%
   activate(edges) %>%

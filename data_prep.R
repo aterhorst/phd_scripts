@@ -399,7 +399,7 @@ save(nodes_geocode,
 
 unlink(tf)
 
-################# end of script #######################
+# *************** end of script ********************* #
 
 
 
