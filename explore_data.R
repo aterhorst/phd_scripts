@@ -13,6 +13,23 @@ load("~/ownCloud/phd_data/pre_processed_data.RData")
 
 # ********* correlation between scale items ********** #
 
+require(likert)
+
+likert_data <- nodes_clean[, c(1,14:52)] %>% 
+  mutate(id = paste(as.character(case), "-",id = as.character(id))) %>%
+  select(-case) %>% 
+  gather(item, score, -id) %>%
+  spread(id, score)
+
+likert_summary <- likert(summary = likert_data$item)
+
+
+
+
+
+
+# ********* correlation between scale items ********** #
+
 require(ggcorrplot)
 
 # extract scale items

@@ -13,7 +13,7 @@
 require(readxl)
 require(httr)
 
-creds <- authenticate("user", "passwd")
+creds <- authenticate(readline(prompt = "Enter ident: "), readline(prompt = "Enter password: "))
 
 url <- "https://bitbucket.csiro.au/projects/ALT/repos/phd_data/raw/case_1/surveydata_case_1.xlsx"
 GET(url, creds, write_disk(tf <- tempfile(fileext = ".xlsx")))
@@ -68,8 +68,8 @@ nodes_clean <- nodes %>%
 
 require(magrittr)
 
-reclass <- c(1, 5:6, 8, 11:12, 14:52)
-nodes_clean[,reclass] %<>% lapply(function(x) as.numeric(as.character(x)))
+make_numeric <- c(1, 5:6, 8, 11:12, 14:52)
+nodes_clean[ , make_numeric] %<>% lapply(function(x) as.numeric(as.character(x)))
 
 # rescale and aggregate items
 
@@ -111,7 +111,7 @@ nodes_rescaled <- nodes_clean %>%
 
 require(ggmap)
 
-register_google(key = "")
+register_google(key = Sys.getenv("GeocodingAPI"))
 
 nodes_geocode <- nodes_rescaled %>%
   # add country information for non-Australian residents
