@@ -7,7 +7,20 @@
 #                                                     #
 #######################################################
 
-# load pre-processed data
+# MPNet is a standalone Windows-based application for
+# exponential randowm graph modelling maintained by Dr. 
+# Peng Wang at Swinburne University of Technology. 
+
+#' @manual{wang2014mpnet
+#'   ,	title	= {MPNet: Program for the simulation and estimation of (p*) exponential random graph models for multilevel networks}
+#'   ,	author	= {Wang, Peng and Robins, GL and Pattison, PE and Koskinen, JH}
+#'   ,	year	= {2014}
+#'   ,	publisher	= {Melbourne School of Psychological Sciences}
+#'   ,	organization	= {The University of Melbourne}
+#'   ,	month	= {June}
+#' }
+
+# ************** load pre-processed data ************ #
 
 load("~/ownCloud/phd_data/pre_processed_data.RData")
 

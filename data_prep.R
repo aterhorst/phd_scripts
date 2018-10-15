@@ -13,7 +13,11 @@
 require(readxl)
 require(httr)
 
+# data is stored in CSIRO's secure bitbucket respository, which needs authenticated access.
+
 creds <- authenticate(readline(prompt = "Enter ident: "), readline(prompt = "Enter password: "))
+
+# read in data from bitbucket respistory
 
 url <- "https://bitbucket.csiro.au/projects/ALT/repos/phd_data/raw/case_1/surveydata_case_1.xlsx"
 GET(url, creds, write_disk(tf <- tempfile(fileext = ".xlsx")))
@@ -146,7 +150,7 @@ nodes_geocode <- nodes_rescaled %>%
 
 # *************** process edge data ***************** # 
 
-# read in raw edge data  
+# read in raw edge data from bitbucket respository
 
 url <- "https://bitbucket.csiro.au/projects/ALT/repos/phd_data/raw/case_1/surveydata_case_1.xlsx"
 GET(url, creds, write_disk(tf <- tempfile(fileext = ".xlsx")))
@@ -396,6 +400,8 @@ save(nodes_geocode,
      geoproximity_case_2, 
      geoproximity_case_3, 
      file = "~/ownCloud/phd_data/pre_processed_data.RData")
+
+# flush temporary files
 
 unlink(tf)
 
