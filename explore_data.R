@@ -16,7 +16,7 @@ load("~/ownCloud/phd_data/pre_processed_data.RData")
 source("https://raw.githubusercontent.com/janhove/janhove.github.io/master/RCode/sortLvls.R")
 
 nodes_clean %>% 
-  # select scale items
+  # select likert scale items
   select(14:52) %>%
   # reverse score items
   mutate(Openness2 = 10 - Openness2,
@@ -28,50 +28,53 @@ nodes_clean %>%
          identificationOrg = identification_org,
          identificationCollab = identification_collab) %>%
   # create long data set
-  gather(question, response, 1:38) %>%
+  gather(item, response, 1:38) %>%
+  # define factors, order likert items
   mutate(case = factor(case),
-         question = factor(question, levels = c("Agreeableness1",
-                                                "Agreeableness2",
-                                                "Conscientiousness1",
-                                                "Conscientiousness2",
-                                                "Openness1",
-                                                "Openness2",
-                                                "Competence1",
-                                                "Competence2",
-                                                "Competence3",
-                                                "Creativity1",
-                                                "Creativity2",
-                                                "Creativity3",
-                                                "SelfDetermination1",
-                                                "SelfDetermination2",
-                                                "SelfDetermination3",
-                                                "identificationGroup",
-                                                "identificationOrg",
-                                                "identificationCollab",
-                                                "Amotivation1",
-                                                "Amotivation2",
-                                                "Amotivation3",
-                                                "ExtrinsicRegulationMaterial1",
-                                                "ExtrinsicRegulationMaterial2",
-                                                "ExtrinsicRegulationMaterial3",
-                                                "ExtrinsicRegulationSocial1",
-                                                "ExtrinsicRegulationSocial2",
-                                                "ExtrinsicRegulationSocial3",
-                                                "IntrojectedRegulation1",
-                                                "IntrojectedRegulation2",
-                                                "IntrojectedRegulation3",
-                                                "IntrojectedRegulation4",
-                                                "IdentifiedRegulation1",
-                                                "IdentifiedRegulation2",
-                                                "IdentifiedRegulation3",
-                                                "IntrinsicMotivation1",
-                                                "IntrinsicMotivation2",
-                                                "IntrinsicMotivation3"))) %>% 
-  group_by(question, response, case) %>%
+         item = factor(item, levels = c("Agreeableness1",
+                                         "Agreeableness2",
+                                         "Conscientiousness1",
+                                         "Conscientiousness2",
+                                         "Openness1",
+                                         "Openness2",
+                                         "Competence1",
+                                         "Competence2",
+                                         "Competence3",
+                                         "Creativity1",
+                                         "Creativity2",
+                                         "Creativity3",
+                                         "SelfDetermination1",
+                                         "SelfDetermination2",
+                                         "SelfDetermination3",
+                                         "identificationGroup",
+                                         "identificationOrg",
+                                         "identificationCollab",
+                                         "Amotivation1",
+                                         "Amotivation2",
+                                         "Amotivation3",
+                                         "ExtrinsicRegulationMaterial1",
+                                         "ExtrinsicRegulationMaterial2",
+                                         "ExtrinsicRegulationMaterial3",
+                                         "ExtrinsicRegulationSocial1",
+                                         "ExtrinsicRegulationSocial2",
+                                         "ExtrinsicRegulationSocial3",
+                                         "IntrojectedRegulation1",
+                                         "IntrojectedRegulation2",
+                                         "IntrojectedRegulation3",
+                                         "IntrojectedRegulation4",
+                                         "IdentifiedRegulation1",
+                                         "IdentifiedRegulation2",
+                                         "IdentifiedRegulation3",
+                                         "IntrinsicMotivation1",
+                                         "IntrinsicMotivation2",
+                                         "IntrinsicMotivation3"))) %>% 
+  # summarise likert responses
+  group_by(item, response, case) %>%
   count() %>%
+  # plot likert responses
   ggplot() + 
   geom_col(aes(x = response, y = n, fill = case)) +
-  facet_wrap(~ question) +
+  facet_wrap(~ item) +
   scale_x_continuous(breaks = c(1:10))
 
 # ********* correlation between scale items ********** #
