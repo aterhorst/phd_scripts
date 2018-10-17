@@ -66,7 +66,8 @@ nodes_clean <- nodes %>%
          work_experience = Experience,
          identification_org = Identity1,
          identification_group = Identity2,
-         identification_collab = Identity3)
+         identification_collab = Identity3,
+         Conscientiousness2 = Conscietiousness2)
 
 # change column types
 

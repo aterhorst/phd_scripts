@@ -11,22 +11,69 @@
 
 load("~/ownCloud/phd_data/pre_processed_data.RData")
 
-# ********* correlation between scale items ********** #
+# ******** assess responses to scale items ********** #
 
-require(likert)
+source("https://raw.githubusercontent.com/janhove/janhove.github.io/master/RCode/sortLvls.R")
 
-likert_data <- nodes_clean[, c(1,14:52)] %>% 
-  mutate(id = paste(as.character(case), "-",id = as.character(id))) %>%
-  select(-case) %>% 
-  gather(item, score, -id) %>%
-  spread(id, score)
-
-likert_summary <- likert(summary = likert_data$item)
-
-
-
-
-
+nodes_clean %>% 
+  # select scale items
+  select(14:52) %>%
+  # reverse score items
+  mutate(Openness2 = 10 - Openness2,
+         Conscientiousness1 = 10 - Conscientiousness1,
+         Agreeableness2 = 10 - Agreeableness2) %>%
+  # rename columns
+  rename(Conscientiousness2 = Conscietiousness2,
+         identificationGroup = identification_group,
+         identificationOrg = identification_org,
+         identificationCollab = identification_collab) %>%
+  # create long data set
+  gather(question, response, 1:38) %>%
+  mutate(question = factor(question),
+         facets = factor(question, levels = c("Agreeableness1",
+                                       "Agreeableness2",
+                                       "Conscientiousness1",
+                                       "Conscientiousness2",
+                                       "Openness1",
+                                       "Openness2",
+                                       "Competence1",
+                                       "Competence2",
+                                       "Competence3",
+                                       "Creativity1",
+                                       "Creativity2",
+                                       "Creativity3",
+                                       "Creativity4",
+                                       "SelfDetermination1",
+                                       "SelfDetermination2",
+                                       "SelfDetermination3",
+                                       "identificationGroup",
+                                       "identificationOrg",
+                                       "identificationCollab",
+                                       "Amotivation1",
+                                       "Amotivation2",
+                                       "Amotivation3",
+                                       "ExtrinsicRegulationMaterial1",
+                                       "ExtrinsicRegulationMaterial2",
+                                       "ExtrinsicRegulationMaterial3",
+                                       "ExtrinsicRegulationSocial1",
+                                       "ExtrinsicRegulationSocial2",
+                                       "ExtrinsicRegulationSocial3",
+                                       "IntrojectedRegulation1",
+                                       "IntrojectedRegulation2",
+                                       "IntrojectedRegulation3",
+                                       "IntrojectedRegulation4",
+                                       "IdentifiedRegulation1",
+                                       "IdentifiedRegulation2",
+                                       "IdentifiedRegulation3",
+                                       "IntrinsicMotivation1",
+                                       "IntrinsicMotivation2",
+                                       "IntrinsicMotivation3"))) %>% 
+  group_by(facets, response, case) %>%
+  count() %>%
+  ggplot() + 
+  geom_col(aes(x = response, y = n, fill = factor(case))) +
+  facet_wrap(~ facets) +
+  scale_x_continuous(breaks = c(1:10))
 
 # ********* correlation between scale items ********** #
 
