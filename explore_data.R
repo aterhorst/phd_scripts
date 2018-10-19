@@ -13,8 +13,6 @@ load("~/ownCloud/phd_data/pre_processed_data.RData")
 
 # ******** assess responses to scale items ********** #
 
-source("https://raw.githubusercontent.com/janhove/janhove.github.io/master/RCode/sortLvls.R")
-
 nodes_clean %>% 
   # select likert scale items
   select(14:52) %>%
@@ -29,7 +27,7 @@ nodes_clean %>%
          identificationCollab = identification_collab) %>%
   # create long data set
   gather(item, response, 1:38) %>%
-  # define factors, order likert items
+  # define factors, re-order likert items
   mutate(case = factor(case),
          item = factor(item, levels = c("Agreeableness1",
                                         "Agreeableness2",
@@ -43,6 +41,7 @@ nodes_clean %>%
                                         "Creativity1",
                                         "Creativity2",
                                         "Creativity3",
+                                        "Creativity4",
                                         "SelfDetermination1",
                                         "SelfDetermination2",
                                         "SelfDetermination3",
@@ -177,7 +176,7 @@ idea_network_case_1 <- network_case_1 %>%
          ev_out = if_else(ev_out != 0, ev_out / out_degree, ev_out),
          ev_brokerage = (ev_in + ev_out) / 2) 
 
-# plot networks
+# ***************** plot networks ******************* #
 
 require(ggraph)
 
@@ -227,7 +226,7 @@ p3 <- ggraph(idea_network_case_1, layout = "manual", node.position = lo) +
              label.padding = unit(0.5, "lines")) +
   ggtitle("Idea Provider")
 
-
+# *************** end of script ********************* #
   
   
 
