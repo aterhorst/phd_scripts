@@ -6,8 +6,13 @@
 #                                                     #
 #######################################################
 
+# This script does three things:
+# 1. It generates bar charts showing responses to survey scale items (all three cases)
+# 2. It examines the correlation between survey items (all three cases)
+# 3. It generates network diagrams for each case (tacit and explicit knowledge provider, idea provider)
 
-# load pre-processed data
+
+# ************ load pre-processed data ************** #
 
 load("~/ownCloud/phd_data/pre_processed_data.RData")
 
