@@ -257,6 +257,7 @@ network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = expanded_edges_case_1,
 nodes_case_2 <- nodes_geocode %>%
   filter(case == 2) %>%
   select(-c(case, place)) %>%
+  # tidygraph name workaround (bug)
   rename(full_name = name)
 
 edges_case_2 <- edges_dist %>%
@@ -276,11 +277,11 @@ expanded_edges_case_2 <- edges_case_2 %>%
 network_case_2 <- tbl_graph(nodes = nodes_case_2 %>% mutate(id = as.character(id)), 
                             edges = expanded_edges_case_2 %>% mutate_at(vars(to, from), as.character), 
                             directed = T) %>%
-  # work around
+  # fix name workaround
   activate(nodes) %>%
   rename(name = full_name) %>%
-  activate(edges) %>%
   # reverse edges
+  activate(edges) %>%
   reroute(from = if_else(network == "predominantly_tacit_knowledge_provider", to, from),
           to = if_else(network == "predominantly_tacit_knowledge_provider", from, to)) %>%
   reroute(from = if_else(network == "predominantly_explicit_knowledge_provider", to, from),
@@ -293,6 +294,7 @@ network_case_2 <- tbl_graph(nodes = nodes_case_2 %>% mutate(id = as.character(id
 nodes_case_3 <- nodes_geocode %>%
   filter(case == 3) %>%
   select(-c(case, place)) %>%
+  # tidygraph name workaround (bug)
   rename(full_name = name)
 
 edges_case_3 <- edges_dist %>%
@@ -312,11 +314,11 @@ expanded_edges_case_3 <- edges_case_3 %>%
 network_case_3 <- tbl_graph(nodes = nodes_case_3 %>% mutate(id = as.character(id)), 
                             edges = expanded_edges_case_3 %>% mutate_at(vars(to, from), as.character), 
                             directed = T) %>%
-  # work around
+  # fix name workaround
   activate(nodes) %>%
   rename(name = full_name) %>%
-  activate(edges) %>%
   # reverse edges
+  activate(edges) %>%
   reroute(from = if_else(network == "predominantly_tacit_knowledge_provider", to, from),
           to = if_else(network == "predominantly_tacit_knowledge_provider", from, to)) %>%
   reroute(from = if_else(network == "predominantly_explicit_knowledge_provider", to, from),
