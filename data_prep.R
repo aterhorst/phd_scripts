@@ -87,7 +87,7 @@ nodes_rescaled <- nodes_clean %>%
   rowwise() %>%
   # aggregate items and rescale to values between 0 and 1
   mutate(personality_openness = round((mean(c(Openness1, Openness2)) - 1) / 9, digits = 2),
-         personality_conscientiousness = round((mean(c(Conscientiousness1, Conscietiousness2)) - 1) / 9, digits = 2),
+         personality_conscientiousness = round((mean(c(Conscientiousness1, Conscientiousness2)) - 1) / 9, digits = 2),
          personality_agreeableness = round((mean(c(Agreeableness1, Agreeableness2)) - 1) / 9, digits = 2),
          job_competence = round((mean(c(Competence1, Competence2, Competence3)) - 1) / 9, digits = 2),
          self_determination = round((mean(c(SelfDetermination1, SelfDetermination2, SelfDetermination3)) - 1) / 9, digits = 2),
@@ -142,8 +142,14 @@ nodes_geocode <- nodes_rescaled %>%
                              name == "Daniel Santiago Pereira" ~ "Brazil",
                              name == "Stephan Carvalho" ~ "Brazil",
                              TRUE ~ "Australia"),
-         # insert missing postcode
-         work_location = if_else(name == "Kerstin Vollmer", "SE-14721", work_location)) %>%
+         # insert missing or fix postcodes
+         work_location = case_when(name == "Kerstin Vollmer" ~ "14734", 
+                                   name == "Martin Palmqvist" ~ "14734", 
+                                   name == "Auro Almeida" ~ "7005",
+                                   name == "Ron Mulder" ~ "3200",
+                                   name == "Flore Mas" ~ "7608",
+                                   name == "Caroline Gross" ~ "2350",
+                                   TRUE ~ work_location)) %>%
   # generate postcode + country variable
   unite(place, work_location, country, sep = " ") %>%
   # geocode place
@@ -222,17 +228,23 @@ require(tidygraph)
 
 nodes_case_1 <- nodes_geocode %>%
   filter(case == 1) %>%
-  select(-c(case, place)) %>%
-  mutate(id = as.character(id))
+  select(-c(case, place)) 
 
 edges_case_1 <- edges_dist %>%
   filter(case == 1) %>%
-  mutate_at(vars(to, from), as.character) %>%
   select(-case) 
 
-network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = edges_case_1, directed = T) %>%
+expanded_edges_case_1 <- edges_case_1 %>%
+  # duplicate edges 
+  bind_rows(edges_case_1 %>%
+              mutate(network = replace(network, network == "predominantly_tacit_knowledge_provider", "predominantly_tacit_knowledge_seeker"),
+                     network = replace(network, network == "predominantly_explicit_knowledge_provider", "predominantly_explicit_knowledge_seeker")) %>%
+              filter(network == "predominantly_tacit_knowledge_seeker" | network == "predominantly_explicit_knowledge_seeker"))
+
+
+network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = expanded_edges_case_1, directed = T) %>%
   activate(edges) %>%
-  # reverse edges
+  # reverse provider edges
   reroute(from = if_else(network == "predominantly_tacit_knowledge_provider", to, from),
           to = if_else(network == "predominantly_tacit_knowledge_provider", from, to)) %>%
   reroute(from = if_else(network == "predominantly_explicit_knowledge_provider", to, from),
@@ -245,16 +257,28 @@ network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = edges_case_1, directed
 nodes_case_2 <- nodes_geocode %>%
   filter(case == 2) %>%
   select(-c(case, place)) %>%
-  mutate(id = as.character(id))
+  rename(full_name = name)
 
 edges_case_2 <- edges_dist %>%
   filter(case == 2) %>%
-  mutate_at(vars(to, from), as.character) %>%
   # remove orphan edges
-  inner_join(nodes_case_2, by = c("from" = "id", "to" = "id")) %>%
-  select(-case) 
+  inner_join(nodes_case_2 %>% select(id), by = c("from" = "id", "to" = "id")) %>%
+  select(-case)
+  
 
-network_case_2 <- tbl_graph(nodes = nodes_case_2, edges = edges_case_2, directed = T) %>%
+expanded_edges_case_2 <- edges_case_2 %>%
+  # duplicate edges 
+  bind_rows(edges_case_2 %>%
+              mutate(network = replace(network, network == "predominantly_tacit_knowledge_provider", "predominantly_tacit_knowledge_seeker"),
+                     network = replace(network, network == "predominantly_explicit_knowledge_provider", "predominantly_explicit_knowledge_seeker")) %>%
+              filter(network == "predominantly_tacit_knowledge_seeker" | network == "predominantly_explicit_knowledge_seeker"))
+
+network_case_2 <- tbl_graph(nodes = nodes_case_2 %>% mutate(id = as.character(id)), 
+                            edges = expanded_edges_case_2 %>% mutate_at(vars(to, from), as.character), 
+                            directed = T) %>%
+  # work around
+  activate(nodes) %>%
+  rename(name = full_name) %>%
   activate(edges) %>%
   # reverse edges
   reroute(from = if_else(network == "predominantly_tacit_knowledge_provider", to, from),
@@ -269,16 +293,28 @@ network_case_2 <- tbl_graph(nodes = nodes_case_2, edges = edges_case_2, directed
 nodes_case_3 <- nodes_geocode %>%
   filter(case == 3) %>%
   select(-c(case, place)) %>%
-  mutate(id = as.character(id))
+  rename(full_name = name)
 
 edges_case_3 <- edges_dist %>%
   filter(case == 3) %>%
-  mutate_at(vars(to, from), as.character) %>%
   # remove orphan edges
-  inner_join(nodes_case_3, by = c("from" = "id", "to" = "id")) %>%
-  select(-case) 
+  inner_join(nodes_case_3 %>% select(id), by = c("from" = "id", "to" = "id")) %>%
+  select(-case)
 
-network_case_3 <- tbl_graph(nodes = nodes_case_3, edges = edges_case_3, directed = T) %>%
+
+expanded_edges_case_3 <- edges_case_3 %>%
+  # duplicate edges 
+  bind_rows(edges_case_3 %>%
+              mutate(network = replace(network, network == "predominantly_tacit_knowledge_provider", "predominantly_tacit_knowledge_seeker"),
+                     network = replace(network, network == "predominantly_explicit_knowledge_provider", "predominantly_explicit_knowledge_seeker")) %>%
+              filter(network == "predominantly_tacit_knowledge_seeker" | network == "predominantly_explicit_knowledge_seeker"))
+
+network_case_3 <- tbl_graph(nodes = nodes_case_3 %>% mutate(id = as.character(id)), 
+                            edges = expanded_edges_case_3 %>% mutate_at(vars(to, from), as.character), 
+                            directed = T) %>%
+  # work around
+  activate(nodes) %>%
+  rename(name = full_name) %>%
   activate(edges) %>%
   # reverse edges
   reroute(from = if_else(network == "predominantly_tacit_knowledge_provider", to, from),
@@ -288,14 +324,13 @@ network_case_3 <- tbl_graph(nodes = nodes_case_3, edges = edges_case_3, directed
   reroute(from = if_else(network == "idea_provider", to, from),
           to = if_else(network == "idea_provider", from, to)) 
 
-
 # *********** generate proximity matrices *********** # 
 
 # case 1
 
 geoproximity_case_1 <- network_case_1 %>%
   activate(nodes) %>%
-  as.tibble() %>%
+  as_tibble() %>%
   # create two new columns with the same ids
   mutate(id1 = id, id2 = id) %>%
   # expand into all combinations of names
@@ -327,8 +362,7 @@ geoproximity_case_1 <- network_case_1 %>%
 
 geoproximity_case_2 <- network_case_2 %>%
   activate(nodes) %>%
-  as.tibble() %>%
-  select(id) %>%
+  as_tibble() %>%
   # create two new columns with the same ids
   mutate(id1 = id, id2 = id) %>%
   # expand into all combinations of names
