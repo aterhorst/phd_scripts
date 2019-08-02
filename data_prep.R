@@ -428,7 +428,8 @@ geoproximity_case_3 <- network_case_3 %>%
  
 # ************* save pre-processed data ************* #
 
-save(nodes_geocode, 
+save(nodes_clean,
+     nodes_geocode, 
      edges_dist, 
      network_case_1, 
      network_case_2, 
