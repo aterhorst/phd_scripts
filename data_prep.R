@@ -234,15 +234,7 @@ edges_case_1 <- edges_dist %>%
   filter(case == 1) %>%
   select(-case) 
 
-expanded_edges_case_1 <- edges_case_1 %>%
-  # duplicate edges 
-  bind_rows(edges_case_1 %>%
-              mutate(network = replace(network, network == "predominantly_tacit_knowledge_provider", "predominantly_tacit_knowledge_seeker"),
-                     network = replace(network, network == "predominantly_explicit_knowledge_provider", "predominantly_explicit_knowledge_seeker")) %>%
-              filter(network == "predominantly_tacit_knowledge_seeker" | network == "predominantly_explicit_knowledge_seeker"))
-
-
-network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = expanded_edges_case_1, directed = T) %>%
+network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = edges_case_1, directed = T) %>%
   activate(edges) %>%
   # reverse provider edges
   reroute(from = if_else(network == "predominantly_tacit_knowledge_provider", to, from),
@@ -257,7 +249,7 @@ network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = expanded_edges_case_1,
 nodes_case_2 <- nodes_geocode %>%
   filter(case == 2) %>%
   select(-c(case, place)) %>%
-  # tidygraph name workaround (bug)
+  #tidygraph name workaround (bug)
   rename(full_name = name)
 
 edges_case_2 <- edges_dist %>%
@@ -267,15 +259,8 @@ edges_case_2 <- edges_dist %>%
   select(-case)
   
 
-expanded_edges_case_2 <- edges_case_2 %>%
-  # duplicate edges 
-  bind_rows(edges_case_2 %>%
-              mutate(network = replace(network, network == "predominantly_tacit_knowledge_provider", "predominantly_tacit_knowledge_seeker"),
-                     network = replace(network, network == "predominantly_explicit_knowledge_provider", "predominantly_explicit_knowledge_seeker")) %>%
-              filter(network == "predominantly_tacit_knowledge_seeker" | network == "predominantly_explicit_knowledge_seeker"))
-
 network_case_2 <- tbl_graph(nodes = nodes_case_2 %>% mutate(id = as.character(id)), 
-                            edges = expanded_edges_case_2 %>% mutate_at(vars(to, from), as.character), 
+                            edges = edges_case_2 %>% mutate_at(vars(to, from), as.character), 
                             directed = T) %>%
   # fix name workaround
   activate(nodes) %>%
@@ -303,16 +288,8 @@ edges_case_3 <- edges_dist %>%
   inner_join(nodes_case_3 %>% select(id), by = c("from" = "id", "to" = "id")) %>%
   select(-case)
 
-
-expanded_edges_case_3 <- edges_case_3 %>%
-  # duplicate edges 
-  bind_rows(edges_case_3 %>%
-              mutate(network = replace(network, network == "predominantly_tacit_knowledge_provider", "predominantly_tacit_knowledge_seeker"),
-                     network = replace(network, network == "predominantly_explicit_knowledge_provider", "predominantly_explicit_knowledge_seeker")) %>%
-              filter(network == "predominantly_tacit_knowledge_seeker" | network == "predominantly_explicit_knowledge_seeker"))
-
 network_case_3 <- tbl_graph(nodes = nodes_case_3 %>% mutate(id = as.character(id)), 
-                            edges = expanded_edges_case_3 %>% mutate_at(vars(to, from), as.character), 
+                            edges = edges_case_3 %>% mutate_at(vars(to, from), as.character), 
                             directed = T) %>%
   # fix name workaround
   activate(nodes) %>%
@@ -342,13 +319,13 @@ geoproximity_case_1 <- network_case_1 %>%
   # add lon, lat coords for id1
   left_join(network_case_1 %>% 
               activate(nodes) %>% 
-              as.tibble() %>% 
+              as_tibble() %>% 
               select(id, lon, lat) %>%
               rename(from_lat = lat, from_lon = lon), by = c("id1" = "id")) %>%
   # add lon, lat coords for id2
   left_join(network_case_1 %>% 
               activate(nodes) %>% 
-              as.tibble() %>% 
+              as_tibble() %>% 
               select(id, lon, lat) %>%
               rename(to_lat = lat, to_lon = lon), by = c("id2" = "id")) %>%
   rowwise() %>%
@@ -374,13 +351,13 @@ geoproximity_case_2 <- network_case_2 %>%
   # add lon, lat coords for id1
   left_join(network_case_2 %>% 
               activate(nodes) %>% 
-              as.tibble() %>% 
+              as_tibble() %>% 
               select(id, lon, lat) %>%
               rename(from_lat = lat, from_lon = lon), by = c("id1" = "id")) %>%
   # add lon, lat coords for id2
   left_join(network_case_2 %>% 
               activate(nodes) %>% 
-              as.tibble() %>% 
+              as_tibble() %>% 
               select(id, lon, lat) %>%
               rename(to_lat = lat, to_lon = lon), by = c("id2" = "id")) %>%
   rowwise() %>%
@@ -396,7 +373,7 @@ geoproximity_case_2 <- network_case_2 %>%
 
 geoproximity_case_3 <- network_case_3 %>%
   activate(nodes) %>%
-  as.tibble() %>%
+  as_tibble() %>%
   select(id) %>%
   # create two new columns with the same ids
   mutate(id1 = id, id2 = id) %>%
@@ -407,13 +384,13 @@ geoproximity_case_3 <- network_case_3 %>%
   # add lon, lat coords for id1
   left_join(network_case_3 %>% 
               activate(nodes) %>% 
-              as.tibble() %>% 
+              as_tibble() %>% 
               select(id, lon, lat) %>%
               rename(from_lat = lat, from_lon = lon), by = c("id1" = "id")) %>%
   # add lon, lat coords for id2
   left_join(network_case_3 %>% 
               activate(nodes) %>% 
-              as.tibble() %>% 
+              as_tibble() %>% 
               select(id, lon, lat) %>%
               rename(to_lat = lat, to_lon = lon), by = c("id2" = "id")) %>%
   rowwise() %>%

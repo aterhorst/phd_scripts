@@ -208,6 +208,7 @@ idea_network_case_1 <- network_case_1 %>%
 require(ggraph)
 require(gridExtra)
 require(ggpubr)
+require(ggthemes)
 
 lo1 <- create_layout(idea_network_case_1, layout = "circle") %>% select(x,y)
 
@@ -265,27 +266,6 @@ p3 <- ggraph(idea_network_case_1, layout = "manual", node.position = lo1) +
 c1 <- arrangeGrob(p1, p2, p3, nrow = 1)
 
 ggsave("~/owncloud/phd_plots/networks_case_1.png", width = 40, height = 15, units = "cm", dpi = 600, c1)
-
-# p1 <- ggraph(explicit_network_case_1, layout = "manual", node.position = lo) +
-#   geom_edge_link(aes(colour = distance),
-#                  arrow = arrow(length = unit(3, 'mm'), type = "open"),
-#                  start_cap = circle(3, 'mm'),
-#                  end_cap = circle(3, 'mm'),
-#                  width = 0.75) +
-#   geom_node_point(aes(size = ev_brokerage, color = factor(org_affiliation))) +
-#   geom_node_text(aes(label = id), size = 4) +
-#   theme_graph() +
-#   geom_label(x = min(lo$x), 
-#              y = max(lo$y) - 0.2,
-#              label = paste(paste("nodes = ", igraph::vcount(explicit_network_case_1)),
-#                            paste("edges = ", igraph::ecount(explicit_network_case_1)),
-#                            paste("graph density = ", round(igraph::graph.density(explicit_network_case_1), digits = 3)), sep = "\n"), 
-#              hjust = 0,
-#              label.padding = unit(0.5, "lines")) +
-#   theme(legend.position = "none",
-#         plot.title = element_text(hjust = 0.5)) +
-#   ggtitle("Explicit Knowledge Provider")
-
 
 # case 2
 
@@ -530,6 +510,92 @@ c3 <- arrangeGrob(p7, p8, p9, nrow = 1)
 
 ggsave("~/owncloud/phd_plots/networks_case_3.png", width = 40, height = 15, units = "cm", dpi = 600, c3)
 
+
+# Plot demographics
+
+case_id <- c("1" = "Case 1", 
+             "2" = "Case 2", 
+             "3" = "Case 3")
+
+ed_level <- c("Secondary Education",
+              "Certificate Level",
+              "Diploma/Advanced Diploma",
+              "Bachelors Degree",
+              "Graduate Certificate/Diploma", 
+              "Masters Degree",
+              "Doctoral Degree")
+
+ed_field <- c("Natural & Physical Sciences", 
+              "Information Technology", 
+              "Engineering & Related Technologies",
+              "Architecture & Building", 
+              "Agricultural, Environmental & Related Studies",
+              "Health","Education", 
+              "Management & Commerce", 
+              "Society & Culture", 
+              "Creative Arts",
+              "Food, Hospitality & Personal Services", 
+              "Mixed Field Programmes")
+
+
+p10 <- nodes_geocode %>%
+  select(case, id, age, work_experience, current_tenure) %>%
+  gather(var, value, c(age, work_experience, current_tenure)) %>%
+  ggplot() +
+  geom_boxplot(aes(x = factor(var), y = value, fill = var), width = 0.25, outlier.color = NA) +
+  geom_jitter(alpha = 0.3, aes(x=factor(var), y = value), color= "black",position = position_jitter(width = .05)) +
+  scale_x_discrete(name = "", labels = c("Age", "Work \nexperience", "Job \ntenure")) +
+  theme_fivethirtyeight() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(~ case, labeller = as_labeller(case_id))
+
+p11 <- nodes_geocode %>%
+  select(case, education_level) %>%
+  group_by(case) %>%
+  count(education_level) %>%
+  ggplot(aes(factor(education_level), n, fill = factor(education_level))) +
+  geom_bar(stat = "identity", position = "dodge", color = "white") + 
+  geom_text(aes(label = n), nudge_y = 0.7, size = 3) +
+  coord_polar() +
+  scale_y_sqrt(breaks = c(4,16,32)) +
+  theme_fivethirtyeight() +
+  theme(axis.text.x = element_blank(), 
+        axis.text.y = element_blank(), 
+        axis.ticks = element_blank(), 
+        axis.title.x = element_blank(), 
+        axis.title.y = element_blank(),
+        legend.title.align = 0.5) +
+  guides(fill = guide_legend(ncol = 2, title.position = "top")) +
+  scale_fill_discrete(name="EDUCATION LEVEL",
+                      breaks=c(2:8),
+                      labels= ed_level) +
+  facet_wrap(~ case, labeller = as_labeller(case_id))
+
+
+p12 <- nodes_geocode %>%
+  select(case, broad_education_field) %>%
+  group_by(case) %>%
+  count(broad_education_field) %>%
+  ggplot(aes(factor(broad_education_field), n, fill = factor(broad_education_field))) +
+  geom_bar(stat = "identity", position = "dodge", color = "white") + 
+  geom_text(aes(label = n), nudge_y = 0.7, size = 3) +
+  coord_polar() +
+  scale_y_sqrt(breaks = c(4,16,32)) +
+  theme_fivethirtyeight() +
+  theme(axis.text.x = element_blank(), 
+        axis.text.y = element_blank(), 
+        axis.ticks = element_blank(), 
+        axis.title.x = element_blank(), 
+        axis.title.y = element_blank(),
+        legend.title.align = 0.5) +
+  guides(fill = guide_legend(ncol = 2, title.position = "top")) +
+  scale_fill_discrete(name="EDUCATION FIELD",
+                      breaks=c(1:12),
+                      labels= ed_field) +
+  facet_wrap(~ case, labeller = as_labeller(case_id))
+
+ggsave("~/owncloud/phd_plots/demographics.png", width = 15, height = 34, units = "cm", dpi = 600, c4)
 
 # *************** end of script ********************* #
   
