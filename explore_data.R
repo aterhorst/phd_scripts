@@ -6,10 +6,11 @@
 #                                                     #
 #######################################################
 
-# This script does three things:
+# This script does four things:
 # 1. It generates bar charts showing responses to survey scale items (all three cases)
 # 2. It examines the correlation between survey items (all three cases)
 # 3. It generates network diagrams for each case (tacit and explicit knowledge provider, idea provider)
+# 4. It generates demographic plots (all three cases)
 
 
 # ************ load pre-processed data ************** #
@@ -208,7 +209,6 @@ idea_network_case_1 <- network_case_1 %>%
 require(ggraph)
 require(gridExtra)
 require(ggpubr)
-require(ggthemes)
 
 lo1 <- create_layout(idea_network_case_1, layout = "circle") %>% select(x,y)
 
@@ -513,6 +513,25 @@ ggsave("~/owncloud/phd_plots/networks_case_3.png", width = 40, height = 15, unit
 
 # Plot demographics
 
+require(ggthemes)
+require(ggThemeAssist)
+
+summary_stats <- nodes_geocode %>%
+  group_by(case) %>%
+  summarise(n = n(),
+            min_age = min(age),
+            max_age = max(age),
+            age_range = max_age - min_age,
+            med_age = median(age),
+            min_exp = min(work_experience),
+            max_exp = max(work_experience),
+            exp_range = max_exp - min_exp,
+            med_exp = median(work_experience),
+            min_tenure = min(current_tenure),
+            max_tenure = max(current_tenure),
+            tenure_range = max_tenure - min_tenure,
+            med_tenure = median(current_tenure))
+
 case_id <- c("1" = "Case 1", 
              "2" = "Case 2", 
              "3" = "Case 3")
@@ -550,6 +569,8 @@ p10 <- nodes_geocode %>%
         axis.text.x = element_text(angle = 45, hjust = 1)) +
   facet_wrap(~ case, labeller = as_labeller(case_id))
 
+ggsave("~/owncloud/phd_plots/age_demographics.png", width = 18, height = 12, units = "cm", dpi = 600, p10)
+
 p11 <- nodes_geocode %>%
   select(case, education_level) %>%
   group_by(case) %>%
@@ -565,13 +586,15 @@ p11 <- nodes_geocode %>%
         axis.ticks = element_blank(), 
         axis.title.x = element_blank(), 
         axis.title.y = element_blank(),
-        legend.title.align = 0.5) +
+        legend.title.align = 0.5,
+        plot.margin = grid::unit(c(0,0,0,0), "mm")) +
   guides(fill = guide_legend(ncol = 2, title.position = "top")) +
   scale_fill_discrete(name="EDUCATION LEVEL",
                       breaks=c(2:8),
                       labels= ed_level) +
   facet_wrap(~ case, labeller = as_labeller(case_id))
 
+ggsave("~/owncloud/phd_plots/ed_level.png", width = 18, height = 12, units = "cm", dpi = 600, p11)
 
 p12 <- nodes_geocode %>%
   select(case, broad_education_field) %>%
@@ -588,14 +611,15 @@ p12 <- nodes_geocode %>%
         axis.ticks = element_blank(), 
         axis.title.x = element_blank(), 
         axis.title.y = element_blank(),
-        legend.title.align = 0.5) +
+        legend.title.align = 0.5,
+        plot.margin = grid::unit(c(0,0,0,0), "mm")) +
   guides(fill = guide_legend(ncol = 2, title.position = "top")) +
   scale_fill_discrete(name="EDUCATION FIELD",
                       breaks=c(1:12),
                       labels= ed_field) +
-  facet_wrap(~ case, labeller = as_labeller(case_id))
+  facet_wrap(~ case, labeller = as_labeller(case_id)) 
 
-ggsave("~/owncloud/phd_plots/demographics.png", width = 15, height = 34, units = "cm", dpi = 600, c4)
+ggsave("~/owncloud/phd_plots/ed_field.png", width = 18, height = 12, units = "cm", dpi = 600, p12)
 
 # *************** end of script ********************* #
   
