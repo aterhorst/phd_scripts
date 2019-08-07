@@ -185,57 +185,24 @@ explicit_network_case_1 <- network_case_1 %>%
          ev_out = if_else(ev_out != 0, ev_out / out_degree, ev_out),
          ev_brokerage = (ev_in + ev_out) / 2) 
 
-
-idea_network_case_1 <- network_case_1 %>%
-  activate(edges) %>%
-  filter(network == "idea_provider") %>%
-  activate(nodes) %>%
-  arrange(org_affiliation) %>%
-  # compute in-degree, out-degree, and betweenness centrality 
-  mutate(betweenness = centrality_betweenness(),
-         in_degree = centrality_degree(mode = "in"),
-         out_degree = centrality_degree(mode = "out"),
-         in_reach = local_size(order = graph_order(), mode = "in") - 1,
-         out_reach = local_size(order = graph_order(), mode = "out") - 1) %>%
-  # compute everett-valente brokerage score
-  mutate(ev_in = if_else(betweenness != 0, betweenness + in_reach, betweenness),
-         ev_in = if_else(ev_in != 0, ev_in / in_degree, ev_in),
-         ev_out = if_else(betweenness != 0, betweenness + out_reach, betweenness),
-         ev_out = if_else(ev_out != 0, ev_out / out_degree, ev_out),
-         ev_brokerage = (ev_in + ev_out) / 2) 
-
 # plot case 1 networks
 
 require(ggraph)
 require(gridExtra)
 require(ggpubr)
 
-lo1 <- create_layout(idea_network_case_1, layout = "circle") %>% select(x,y)
+lo1 <- create_layout(tacit_network_case_1, layout = "circle") %>% select(x,y)
 
-p1 <- ggraph(explicit_network_case_1, layout = "manual", node.position = lo1) +
-  geom_edge_link(aes(width = distance, alpha = ..index..), color = "dark grey") +
+p1 <- ggraph(tacit_network_case_1, layout = "manual", node.position = lo1) +
+  geom_edge_link(aes(color = distance, alpha = ..index..), width = 1) +
   geom_node_point(aes(size = ev_brokerage, color = factor(org_affiliation))) +
-  geom_node_text(aes(label = id), size = 4, nudge_x = 0.07, nudge_y = -0.07) +
+  geom_node_text(aes(label = id), 
+                 size = 3, 
+                 hjust = ifelse(lo1[,1] > 0, -1.125, 2.125),
+                 vjust = ifelse(lo1[,2] > 0, -1.125, 2.125)) +
   theme_graph() +
-  geom_label(x = min(lo1$x) - 0.06,
-             y = max(lo1$y) - 0.04,
-             label = paste(paste("nodes = ", igraph::vcount(explicit_network_case_1)),
-                           paste("edges = ", igraph::ecount(explicit_network_case_1)),
-                           paste("graph density = ", round(igraph::graph.density(explicit_network_case_1), digits = 3)), sep = "\n"),
-             hjust = 0,
-             size = 2,
-             label.padding = unit(0.4, "lines")) +
-  scale_edge_alpha("Edge direction", guide = "edge_direction") +
-  theme(legend.position = "none", plot.title = element_text(hjust = 0.5), panel.border = element_rect(color = "black", fill = NA)) +
-  ggtitle("Explicit Knowledge Provider")
-
-p2 <- ggraph(tacit_network_case_1, layout = "manual", node.position = lo1) +
-  geom_edge_link(aes(width = distance, alpha = ..index..), color = "dark grey") +
-  geom_node_point(aes(size = ev_brokerage, color = factor(org_affiliation))) +
-  geom_node_text(aes(label = id), size = 4, nudge_x = 0.07, nudge_y = -0.07) +
-  theme_graph() +
-  geom_label(x = min(lo1$x) - 0.06,
-             y = max(lo1$y) - 0.04,
+  geom_label(x = min(lo1$x) - 0.15,
+             y = max(lo1$y) + 0.05,
              label = paste(paste("nodes = ", igraph::vcount(tacit_network_case_1)),
                            paste("edges = ", igraph::ecount(tacit_network_case_1)),
                            paste("graph density = ", round(igraph::graph.density(tacit_network_case_1), digits = 3)), sep = "\n"),
@@ -244,28 +211,33 @@ p2 <- ggraph(tacit_network_case_1, layout = "manual", node.position = lo1) +
              label.padding = unit(0.4, "lines")) +
   scale_edge_alpha("Edge direction", guide = "edge_direction") +
   theme(legend.position = "none", plot.title = element_text(hjust = 0.5), panel.border = element_rect(color = "black", fill = NA)) +
+  coord_cartesian(xlim=c(-1.1, 1.1), ylim=c(-1.1, 1.1)) +
   ggtitle("Tacit Knowledge Provider")
 
-p3 <- ggraph(idea_network_case_1, layout = "manual", node.position = lo1) +
-  geom_edge_link(aes(width = distance, alpha = ..index..), color = "dark grey") +
+p2 <- ggraph(explicit_network_case_1, layout = "manual", node.position = lo1) +
+  geom_edge_link(aes(color = distance, alpha = ..index..), width = 1) +
   geom_node_point(aes(size = ev_brokerage, color = factor(org_affiliation))) +
-  geom_node_text(aes(label = id), size = 4, nudge_x = 0.07, nudge_y = -0.07) +
+  geom_node_text(aes(label = id), 
+                 size = 3, 
+                 hjust = ifelse(lo1[,1] > 0, -1.125, 2.125),
+                 vjust = ifelse(lo1[,2] > 0, -1.125, 2.125)) +
   theme_graph() +
-  geom_label(x = min(lo1$x) - 0.06,
-             y = max(lo1$y) - 0.04,
-             label = paste(paste("nodes = ", igraph::vcount(idea_network_case_1)),
-                           paste("edges = ", igraph::ecount(idea_network_case_1)),
-                           paste("graph density = ", round(igraph::graph.density(idea_network_case_1), digits = 3)), sep = "\n"),
+  geom_label(x = min(lo1$x) - 0.15,
+             y = max(lo1$y) + 0.05,
+             label = paste(paste("nodes = ", igraph::vcount(explicit_network_case_1)),
+                           paste("edges = ", igraph::ecount(explicit_network_case_1)),
+                           paste("graph density = ", round(igraph::graph.density(explicit_network_case_1), digits = 3)), sep = "\n"),
              hjust = 0,
              size = 2,
              label.padding = unit(0.4, "lines")) +
   scale_edge_alpha("Edge direction", guide = "edge_direction") +
   theme(legend.position = "none", plot.title = element_text(hjust = 0.5), panel.border = element_rect(color = "black", fill = NA)) +
-  ggtitle("Idea Contributor")
+  coord_cartesian(xlim=c(-1.1, 1.1), ylim=c(-1.1, 1.1)) +
+  ggtitle("Explicit Knowledge Provider")
 
-c1 <- arrangeGrob(p1, p2, p3, nrow = 1)
+c1 <- arrangeGrob(p1, p2, nrow = 1)
 
-ggsave("~/owncloud/phd_plots/networks_case_1.png", width = 40, height = 15, units = "cm", dpi = 600, c1)
+ggsave("~/owncloud/phd_plots/networks_case_1.png", width = 30, height = 15, units = "cm", dpi = 600, c1)
 
 # case 2
 
@@ -310,53 +282,20 @@ explicit_network_case_2 <- network_case_2 %>%
          ev_out = if_else(ev_out != 0, ev_out / out_degree, ev_out),
          ev_brokerage = (ev_in + ev_out) / 2) 
 
-
-idea_network_case_2 <- network_case_2 %>%
-  activate(edges) %>%
-  filter(network == "idea_provider") %>%
-  activate(nodes) %>%
-  arrange(org_affiliation) %>%
-  # compute in-degree, out-degree, and betweenness centrality 
-  mutate(betweenness = centrality_betweenness(),
-         in_degree = centrality_degree(mode = "in"),
-         out_degree = centrality_degree(mode = "out"),
-         in_reach = local_size(order = graph_order(), mode = "in") - 1,
-         out_reach = local_size(order = graph_order(), mode = "out") - 1) %>%
-  # compute everett-valente brokerage score
-  mutate(ev_in = if_else(betweenness != 0, betweenness + in_reach, betweenness),
-         ev_in = if_else(ev_in != 0, ev_in / in_degree, ev_in),
-         ev_out = if_else(betweenness != 0, betweenness + out_reach, betweenness),
-         ev_out = if_else(ev_out != 0, ev_out / out_degree, ev_out),
-         ev_brokerage = (ev_in + ev_out) / 2) 
-
 # plot case 2 networks 
 
-lo2 <- create_layout(idea_network_case_2, layout = "circle") %>% select(x,y)
+lo2 <- create_layout(tacit_network_case_2, layout = "circle") %>% select(x,y)
 
-p4 <- ggraph(explicit_network_case_2, layout = "manual", node.position = lo2) +
-  geom_edge_link(aes(width = distance, alpha = ..index..), color = "dark grey") +
+p3 <- ggraph(tacit_network_case_2, layout = "manual", node.position = lo2) +
+  geom_edge_link(aes(color = distance, alpha = ..index..), width = 1) +
   geom_node_point(aes(size = ev_brokerage, color = factor(org_affiliation))) +
-  geom_node_text(aes(label = id), size = 4, nudge_x = 0.07, nudge_y = -0.07) +
+  geom_node_text(aes(label = id), 
+                 size = 3, 
+                 hjust = ifelse(lo1[,1] > 0, -1.125, 2.125),
+                 vjust = ifelse(lo1[,2] > 0, -1.125, 2.125)) +
   theme_graph() +
-  geom_label(x = min(lo1$x) - 0.06,
-             y = max(lo1$y) - 0.02,
-             label = paste(paste("nodes = ", igraph::vcount(explicit_network_case_2)),
-                           paste("edges = ", igraph::ecount(explicit_network_case_2)),
-                           paste("graph density = ", round(igraph::graph.density(explicit_network_case_2), digits = 3)), sep = "\n"),
-             hjust = 0,
-             size = 2,
-             label.padding = unit(0.4, "lines")) +
-  scale_edge_alpha("Edge direction", guide = "edge_direction") +
-  theme(legend.position = "none", plot.title = element_text(hjust = 0.5), panel.border = element_rect(color = "black", fill = NA)) +
-  ggtitle("Explicit Knowledge Provider")
-
-p5 <- ggraph(tacit_network_case_2, layout = "manual", node.position = lo2) +
-  geom_edge_link(aes(width = distance, alpha = ..index..), color = "dark grey") +
-  geom_node_point(aes(size = ev_brokerage, color = factor(org_affiliation))) +
-  geom_node_text(aes(label = id), size = 4, nudge_x = 0.07, nudge_y = -0.07) +
-  theme_graph() +
-  geom_label(x = min(lo1$x) - 0.06,
-             y = max(lo1$y) - 0.02,
+  geom_label(x = min(lo1$x) - 0.15,
+             y = max(lo1$y) + 0.05,
              label = paste(paste("nodes = ", igraph::vcount(tacit_network_case_2)),
                            paste("edges = ", igraph::ecount(tacit_network_case_2)),
                            paste("graph density = ", round(igraph::graph.density(tacit_network_case_2), digits = 3)), sep = "\n"),
@@ -365,29 +304,33 @@ p5 <- ggraph(tacit_network_case_2, layout = "manual", node.position = lo2) +
              label.padding = unit(0.4, "lines")) +
   scale_edge_alpha("Edge direction", guide = "edge_direction") +
   theme(legend.position = "none", plot.title = element_text(hjust = 0.5), panel.border = element_rect(color = "black", fill = NA)) +
+  coord_cartesian(xlim=c(-1.1, 1.1), ylim=c(-1.1, 1.1)) +
   ggtitle("Tacit Knowledge Provider")
 
-p6 <- ggraph(idea_network_case_2, layout = "manual", node.position = lo2) +
-  geom_edge_link(aes(width = distance, alpha = ..index..), color = "dark grey") +
+p4 <- ggraph(explicit_network_case_2, layout = "manual", node.position = lo2) +
+  geom_edge_link(aes(color = distance, alpha = ..index..), width = 1) +
   geom_node_point(aes(size = ev_brokerage, color = factor(org_affiliation))) +
-  geom_node_text(aes(label = id), size = 4, nudge_x = 0.07, nudge_y = -0.07) +
+  geom_node_text(aes(label = id), 
+                 size = 3, 
+                 hjust = ifelse(lo1[,1] > 0, -1.125, 2.125),
+                 vjust = ifelse(lo1[,2] > 0, -1.125, 2.125)) +
   theme_graph() +
-  geom_label(x = min(lo1$x) - 0.06,
-             y = max(lo1$y) - 0.02,
-             label = paste(paste("nodes = ", igraph::vcount(idea_network_case_2)),
-                           paste("edges = ", igraph::ecount(idea_network_case_2)),
-                           paste("graph density = ", round(igraph::graph.density(idea_network_case_2), digits = 3)), sep = "\n"),
+  geom_label(x = min(lo1$x) - 0.15,
+             y = max(lo1$y) + 0.05,
+             label = paste(paste("nodes = ", igraph::vcount(explicit_network_case_2)),
+                           paste("edges = ", igraph::ecount(explicit_network_case_2)),
+                           paste("graph density = ", round(igraph::graph.density(explicit_network_case_2), digits = 3)), sep = "\n"),
              hjust = 0,
              size = 2,
              label.padding = unit(0.4, "lines")) +
   scale_edge_alpha("Edge direction", guide = "edge_direction") +
   theme(legend.position = "none", plot.title = element_text(hjust = 0.5), panel.border = element_rect(color = "black", fill = NA)) +
-  ggtitle("Idea Contributor")
+  coord_cartesian(xlim=c(-1.1, 1.1), ylim=c(-1.1, 1.1)) +
+  ggtitle("Explicit Knowledge Provider")
 
-c2 <- arrangeGrob(p4, p5, p6, nrow = 1)
+c2 <- arrangeGrob(p3, p4, nrow = 1)
 
-ggsave("~/owncloud/phd_plots/networks_case_2.png", width = 40, height = 15, units = "cm", dpi = 600, c2)
-
+ggsave("~/owncloud/phd_plots/networks_case_2.png", width = 30, height = 15, units = "cm", dpi = 600, c2)
 
 # case 3
 
@@ -432,53 +375,20 @@ explicit_network_case_3 <- network_case_3 %>%
          ev_out = if_else(ev_out != 0, ev_out / out_degree, ev_out),
          ev_brokerage = (ev_in + ev_out) / 2) 
 
-
-idea_network_case_3 <- network_case_3 %>%
-  activate(edges) %>%
-  filter(network == "idea_provider") %>%
-  activate(nodes) %>%
-  arrange(org_affiliation) %>%
-  # compute in-degree, out-degree, and betweenness centrality 
-  mutate(betweenness = centrality_betweenness(),
-         in_degree = centrality_degree(mode = "in"),
-         out_degree = centrality_degree(mode = "out"),
-         in_reach = local_size(order = graph_order(), mode = "in") - 1,
-         out_reach = local_size(order = graph_order(), mode = "out") - 1) %>%
-  # compute everett-valente brokerage score
-  mutate(ev_in = if_else(betweenness != 0, betweenness + in_reach, betweenness),
-         ev_in = if_else(ev_in != 0, ev_in / in_degree, ev_in),
-         ev_out = if_else(betweenness != 0, betweenness + out_reach, betweenness),
-         ev_out = if_else(ev_out != 0, ev_out / out_degree, ev_out),
-         ev_brokerage = (ev_in + ev_out) / 2) 
-
 #  plot case 3 networks 
 
-lo3 <- create_layout(idea_network_case_3, layout = "circle") %>% select(x,y)
+lo3 <- create_layout(tacit_network_case_3, layout = "circle") %>% select(x,y)
 
-p7 <- ggraph(explicit_network_case_3, layout = "manual", node.position = lo3) +
-  geom_edge_link(aes(width = distance, alpha = ..index..), color = "dark grey") +
+p5 <- ggraph(tacit_network_case_3, layout = "manual", node.position = lo3) +
+  geom_edge_link(aes(color = distance, alpha = ..index..), width = 1) +
   geom_node_point(aes(size = ev_brokerage, color = factor(org_affiliation))) +
-  geom_node_text(aes(label = id), size = 4, nudge_x = 0.07, nudge_y = -0.07) +
+  geom_node_text(aes(label = id), 
+                 size = 3, 
+                 hjust = ifelse(lo1[,1] > 0, -1.125, 2.125),
+                 vjust = ifelse(lo1[,2] > 0, -1.125, 2.125)) +
   theme_graph() +
-  geom_label(x = min(lo1$x) - 0.06,
-             y = max(lo1$y) - 0.02,
-             label = paste(paste("nodes = ", igraph::vcount(explicit_network_case_3)),
-                           paste("edges = ", igraph::ecount(explicit_network_case_3)),
-                           paste("graph density = ", round(igraph::graph.density(explicit_network_case_3), digits = 3)), sep = "\n"),
-             hjust = 0,
-             size = 2,
-             label.padding = unit(0.4, "lines")) +
-  scale_edge_alpha("Edge direction", guide = "edge_direction") +
-  theme(legend.position = "none", plot.title = element_text(hjust = 0.5), panel.border = element_rect(color = "black", fill = NA)) +
-  ggtitle("Explicit Knowledge Provider")
-
-p8 <- ggraph(tacit_network_case_3, layout = "manual", node.position = lo3) +
-  geom_edge_link(aes(width = distance, alpha = ..index..), color = "dark grey") +
-  geom_node_point(aes(size = ev_brokerage, color = factor(org_affiliation))) +
-  geom_node_text(aes(label = id), size = 4, nudge_x = 0.07, nudge_y = -0.07) +
-  theme_graph() +
-  geom_label(x = min(lo1$x) - 0.06,
-             y = max(lo1$y) - 0.02,
+  geom_label(x = min(lo1$x) - 0.15,
+             y = max(lo1$y) + 0.05,
              label = paste(paste("nodes = ", igraph::vcount(tacit_network_case_3)),
                            paste("edges = ", igraph::ecount(tacit_network_case_3)),
                            paste("graph density = ", round(igraph::graph.density(tacit_network_case_3), digits = 3)), sep = "\n"),
@@ -487,29 +397,33 @@ p8 <- ggraph(tacit_network_case_3, layout = "manual", node.position = lo3) +
              label.padding = unit(0.4, "lines")) +
   scale_edge_alpha("Edge direction", guide = "edge_direction") +
   theme(legend.position = "none", plot.title = element_text(hjust = 0.5), panel.border = element_rect(color = "black", fill = NA)) +
+  coord_cartesian(xlim=c(-1.1, 1.1), ylim=c(-1.1, 1.1)) +
   ggtitle("Tacit Knowledge Provider")
 
-p9 <- ggraph(idea_network_case_3, layout = "manual", node.position = lo3) +
-  geom_edge_link(aes(width = distance, alpha = ..index..), color = "dark grey") +
+p6 <- ggraph(explicit_network_case_3, layout = "manual", node.position = lo3) +
+  geom_edge_link(aes(color = distance, alpha = ..index..), width = 1) +
   geom_node_point(aes(size = ev_brokerage, color = factor(org_affiliation))) +
-  geom_node_text(aes(label = id), size = 4, nudge_x = 0.07, nudge_y = -0.07) +
+  geom_node_text(aes(label = id), 
+                 size = 3, 
+                 hjust = ifelse(lo1[,1] > 0, -1.125, 2.125),
+                 vjust = ifelse(lo1[,2] > 0, -1.125, 2.125)) +
   theme_graph() +
-  geom_label(x = min(lo1$x) - 0.06,
-             y = max(lo1$y) - 0.02,
-             label = paste(paste("nodes = ", igraph::vcount(idea_network_case_3)),
-                           paste("edges = ", igraph::ecount(idea_network_case_3)),
-                           paste("graph density = ", round(igraph::graph.density(idea_network_case_3), digits = 3)), sep = "\n"),
+  geom_label(x = min(lo1$x) - 0.15,
+             y = max(lo1$y) + 0.05,
+             label = paste(paste("nodes = ", igraph::vcount(explicit_network_case_3)),
+                           paste("edges = ", igraph::ecount(explicit_network_case_3)),
+                           paste("graph density = ", round(igraph::graph.density(explicit_network_case_3), digits = 3)), sep = "\n"),
              hjust = 0,
              size = 2,
              label.padding = unit(0.4, "lines")) +
   scale_edge_alpha("Edge direction", guide = "edge_direction") +
   theme(legend.position = "none", plot.title = element_text(hjust = 0.5), panel.border = element_rect(color = "black", fill = NA)) +
-  ggtitle("Idea Contributor")
+  coord_cartesian(xlim=c(-1.1, 1.1), ylim=c(-1.1, 1.1)) +
+  ggtitle("Explicit Knowledge Provider")
 
-c3 <- arrangeGrob(p7, p8, p9, nrow = 1)
+c3 <- arrangeGrob(p5, p6, nrow = 1)
 
-ggsave("~/owncloud/phd_plots/networks_case_3.png", width = 40, height = 15, units = "cm", dpi = 600, c3)
-
+ggsave("~/owncloud/phd_plots/networks_case_3.png", width = 30, height = 15, units = "cm", dpi = 600, c3)
 
 # Plot demographics
 
@@ -519,18 +433,30 @@ require(ggThemeAssist)
 summary_stats <- nodes_geocode %>%
   group_by(case) %>%
   summarise(n = n(),
+            partners = n_distinct(org_affiliation),
             min_age = min(age),
             max_age = max(age),
             age_range = max_age - min_age,
+            avg_age = mean(age),
             med_age = median(age),
             min_exp = min(work_experience),
             max_exp = max(work_experience),
             exp_range = max_exp - min_exp,
+            avg_exp = mean(work_experience),
             med_exp = median(work_experience),
             min_tenure = min(current_tenure),
             max_tenure = max(current_tenure),
             tenure_range = max_tenure - min_tenure,
+            avg_tenure = mean(current_tenure),
             med_tenure = median(current_tenure))
+
+summary_dist <- edges_dist %>%
+  ungroup() %>%
+  group_by(case) %>%
+  summarise(min_dist = min(distance),
+            max_dist = max(distance),
+            avg_dist = mean(distance),
+            med_dist = median(distance))
 
 case_id <- c("1" = "Case 1", 
              "2" = "Case 2", 
@@ -557,7 +483,7 @@ ed_field <- c("Natural & Physical Sciences",
               "Mixed Field Programmes")
 
 
-p10 <- nodes_geocode %>%
+p7 <- nodes_geocode %>%
   select(case, id, age, work_experience, current_tenure) %>%
   gather(var, value, c(age, work_experience, current_tenure)) %>%
   ggplot() +
@@ -571,7 +497,7 @@ p10 <- nodes_geocode %>%
 
 ggsave("~/owncloud/phd_plots/age_demographics.png", width = 18, height = 12, units = "cm", dpi = 600, p10)
 
-p11 <- nodes_geocode %>%
+p8 <- nodes_geocode %>%
   select(case, education_level) %>%
   group_by(case) %>%
   count(education_level) %>%
@@ -596,7 +522,7 @@ p11 <- nodes_geocode %>%
 
 ggsave("~/owncloud/phd_plots/ed_level.png", width = 18, height = 12, units = "cm", dpi = 600, p11)
 
-p12 <- nodes_geocode %>%
+p9 <- nodes_geocode %>%
   select(case, broad_education_field) %>%
   group_by(case) %>%
   count(broad_education_field) %>%
@@ -620,6 +546,34 @@ p12 <- nodes_geocode %>%
   facet_wrap(~ case, labeller = as_labeller(case_id)) 
 
 ggsave("~/owncloud/phd_plots/ed_field.png", width = 18, height = 12, units = "cm", dpi = 600, p12)
+
+# plot proximity heat maps
+
+require(RColorBrewer)
+
+prox <-rbind(geoproximity_case_1 %>% mutate(case = 1), 
+             geoproximity_case_2 %>% mutate(case = 2), 
+             geoproximity_case_3 %>% mutate(case = 3)) %>%
+  arrange(distance) %>%
+  mutate(from = factor(from, levels = c(1:45)),
+         to = factor(to, levels = c(1:45)))
+
+p10 <- ggplot(data = prox, aes(x = from, y = to)) +
+  geom_tile(aes(fill = distance)) +
+  theme_fivethirtyeight() +
+  theme(axis.text = element_text(size = 6),
+        strip.text = element_text(size = 16)) +
+  scale_fill_distiller(palette = "YlGnBu", 
+                       name = "Spherical distance (km)", 
+                       breaks = c(0, 5000, 10000, 15000, 20000)) +
+  guides(fill = guide_colourbar(barwidth = 10, barheight = 0.75)) +
+  facet_wrap(~ case, 
+             ncol = 1, 
+             scales = "free", 
+             labeller = as_labeller(case_id))
+
+ggsave("~/owncloud/phd_plots/proximity.pdf", width = 12, height = 36, units = "cm", dpi = 600, p10)
+
 
 # *************** end of script ********************* #
   

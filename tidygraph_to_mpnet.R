@@ -151,6 +151,7 @@ MASS::write.matrix(adjaceny_matrix_report_case_1, file = "~/ownCloud/phd_data/ca
 # geoproximity network
 
 distance_matrix_case_1 <- geoproximity_case_1 %>%
+  as_tbl_graph(directed = F) %>%
   activate(edges) %>% 
   igraph::get.adjacency(sparse = F, attr = "log_distance", type = "both", names = F)
 
@@ -303,6 +304,7 @@ MASS::write.matrix(adjaceny_matrix_report_case_2, file = "~/ownCloud/phd_data/ca
 # geoproximity network
 
 distance_matrix_case_2 <- geoproximity_case_2 %>%
+  as_tbl_graph(directed = F) %>%
   activate(edges) %>% 
   igraph::get.adjacency(sparse = F, attr = "log_distance", type = "both", names = F)
 
@@ -454,6 +456,7 @@ MASS::write.matrix(adjaceny_matrix_report_case_3, file = "~/ownCloud/phd_data/ca
 # geoproximity network
 
 distance_matrix_case_3 <- geoproximity_case_3 %>%
+  as_tbl_graph(directed = F) %>%
   activate(edges) %>% 
   igraph::get.adjacency(sparse = F, attr = "log_distance", type = "both", names = F)
 

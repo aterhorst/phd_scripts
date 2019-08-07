@@ -234,7 +234,7 @@ edges_case_1 <- edges_dist %>%
   filter(case == 1) %>%
   select(-case) 
 
-network_case_1 <- tbl_graph(nodes = nodes_case_1, edges = edges_case_1, directed = T) %>%
+network_case_1 <- tbl_graph(nodes = nodes_case_1 %>% mutate(id = as.character(id)), edges = edges_case_1, directed = T) %>%
   activate(edges) %>%
   # reverse provider edges
   reroute(from = if_else(network == "predominantly_tacit_knowledge_provider", to, from),
@@ -335,7 +335,7 @@ geoproximity_case_1 <- network_case_1 %>%
   rename(from = id1, to = id2) %>%
   arrange(as.numeric(from), as.numeric(to)) %>%
   select(from, to, distance, log_distance) %>%
-  as_tbl_graph(directed = F)
+  distinct(from, to, .keep_all = T)
 
 # case 2
 
@@ -367,7 +367,7 @@ geoproximity_case_2 <- network_case_2 %>%
   rename(from = id1, to = id2) %>%
   arrange(as.numeric(from), as.numeric(to)) %>%
   select(from, to, distance, log_distance) %>%
-  as_tbl_graph(directed = F)
+  distinct(from, to, .keep_all = T)
 
 # case 3
 
@@ -400,9 +400,8 @@ geoproximity_case_3 <- network_case_3 %>%
   rename(from = id1, to = id2) %>%
   arrange(as.numeric(from), as.numeric(to)) %>%
   select(from, to, distance, log_distance) %>%
-  as_tbl_graph(directed = F)
+  distinct(from, to, .keep_all = T)
 
- 
 # ************* save pre-processed data ************* #
 
 save(nodes_clean,
