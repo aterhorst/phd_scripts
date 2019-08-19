@@ -10,9 +10,12 @@
 # load preprocessed data
 
 load("~/ownCloud/phd_data/pre_processed_data.RData")
+# load("//OSM-05-MEL/OSM_MEL_DPS_OI_Network_work/ownCloud/phd_data/pre_processed_data.RData")
 
 # perform GF analysis
 
+require(tidyverse)
+require(tidygraph)
 require(intergraph)
 require(sna)
 
@@ -25,12 +28,7 @@ gf_tk_1 <- network_case_1 %>%
   # convert to sna graph
   asNetwork() %>%
   # compute brokerage
-  brokerage(network_case_1 %>%
-              activate(nodes) %>%
-              select(org_affiliation) %>%
-              as_tibble() %>%
-              as.list() %>%
-              pluck(1))
+  brokerage(. %v% "org_affiliation")
 
 gf_ek_1 <- network_case_1 %>%
   activate(edges) %>%
@@ -39,12 +37,7 @@ gf_ek_1 <- network_case_1 %>%
   # convert to sna graph
   asNetwork() %>%
   # compute brokerage
-  brokerage(network_case_1 %>%
-              activate(nodes) %>%
-              select(org_affiliation) %>%
-              as_tibble() %>%
-              as.list() %>%
-              pluck(1))
+  brokerage(. %v% "org_affiliation")
 
 # case 2
               
@@ -55,12 +48,7 @@ gf_tk_2 <- network_case_2 %>%
   # convert to sna graph
   asNetwork() %>%
   # compute brokerage
-  brokerage(network_case_2 %>%
-              activate(nodes) %>%
-              select(org_affiliation) %>%
-              as_tibble() %>%
-              as.list() %>%
-              pluck(1))
+  brokerage(. %v% "org_affiliation")
 
 gf_ek_2 <- network_case_2 %>%
   activate(edges) %>%
@@ -69,12 +57,7 @@ gf_ek_2 <- network_case_2 %>%
   # convert to sna graph
   asNetwork() %>%
   # compute brokerage
-  brokerage(network_case_2 %>%
-              activate(nodes) %>%
-              select(org_affiliation) %>%
-              as_tibble() %>%
-              as.list() %>%
-              pluck(1))
+  brokerage(. %v% "org_affiliation")
 
 # case 3
 
@@ -85,12 +68,7 @@ gf_tk_3 <- network_case_3 %>%
   # convert to sna graph
   asNetwork() %>%
   # compute brokerage
-  brokerage(network_case_3 %>%
-              activate(nodes) %>%
-              select(org_affiliation) %>%
-              as_tibble() %>%
-              as.list() %>%
-              pluck(1))
+  brokerage(. %v% "org_affiliation")
 
 gf_ek_3 <- network_case_3 %>%
   activate(edges) %>%
@@ -99,12 +77,7 @@ gf_ek_3 <- network_case_3 %>%
   # convert to sna graph
   asNetwork() %>%
   # compute brokerage
-  brokerage(network_case_3 %>%
-              activate(nodes) %>%
-              select(org_affiliation) %>%
-              as_tibble() %>%
-              as.list() %>%
-              pluck(1))
+  brokerage(. %v% "org_affiliation")
 
 # synthesise gf data
 
@@ -145,7 +118,7 @@ gf <- rbind(gf_1_tk, gf_1_ek, gf_2_tk, gf_2_ek, gf_3_tk, gf_3_ek)
 library(dplyr)
 library(ggplot2)
 library(RColorBrewer)
-require(latex2exp)
+
 
 # set up plot
 
@@ -189,5 +162,10 @@ ggsave("~/owncloud/phd_plots/gf_brokerage.png", width = 18, height = 12, units =
 
 # *************** end of script ********************* #
 
-
+ek_sna_3 <- network_case_2 %>%
+  activate(edges) %>%
+  # extract predominantlyexplicit knowledge provider network
+  filter(network == "predominantly_tacit_knowledge_provider") %>%
+  # convert to sna graph
+  asNetwork()
 

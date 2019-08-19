@@ -34,7 +34,7 @@ require(tidygraph)
 
 continuous_data_case_1 <- network_case_1 %>% 
   activate(nodes) %>%
-  as.tibble() %>%
+  as_tibble() %>%
   select(age,
          education_level,
          work_experience,
@@ -60,7 +60,7 @@ write.table(continuous_data_case_1, "~/ownCloud/phd_data/case_1/continuous_data.
 
 categorical_data_case_1 <- network_case_1 %>%
   activate(nodes) %>%
-  as.tibble() %>%
+  as_tibble() %>%
   select(broad_education_field,
          occupation_class,
          org_affiliation)
@@ -69,7 +69,7 @@ write.table(categorical_data_case_1, "~/ownCloud/phd_data/case_1/categorical_dat
 
 binary_data_case_1 <- network_case_1 %>%
   activate(nodes) %>%
-  as.tibble() %>%
+  as_tibble() %>%
   select(gender)
 
 write.table(binary_data_case_1, "~/ownCloud/phd_data/case_1/binary_data.txt", row.names = F, col.names = T, sep = "\t", quote = F)
@@ -187,7 +187,7 @@ write.table(as.data.frame(as.matrix(distance_matrix_case_1)), file = fn, append 
 
 continuous_data_case_2 <- network_case_2 %>% 
   activate(nodes) %>%
-  as.tibble() %>%
+  as_tibble() %>%
   select(age,
          education_level,
          work_experience,
@@ -213,7 +213,7 @@ write.table(continuous_data_case_2, "~/ownCloud/phd_data/case_2/continuous_data.
 
 categorical_data_case_2 <- network_case_2 %>%
   activate(nodes) %>%
-  as.tibble() %>%
+  as_tibble() %>%
   select(broad_education_field,
          occupation_class,
          org_affiliation)
@@ -222,7 +222,7 @@ write.table(categorical_data_case_2, "~/ownCloud/phd_data/case_2/categorical_dat
 
 binary_data_case_2 <- network_case_2 %>%
   activate(nodes) %>%
-  as.tibble() %>%
+  as_tibble() %>%
   select(gender)
 
 write.table(binary_data_case_2, "~/ownCloud/phd_data/case_2/binary_data.txt", row.names = F, col.names = T, sep = "\t", quote = F)
@@ -339,7 +339,7 @@ write.table(as.data.frame(as.matrix(distance_matrix_case_2)), file = fn, append 
 
 continuous_data_case_3 <- network_case_3 %>% 
   activate(nodes) %>%
-  as.tibble() %>%
+  as_tibble() %>%
   select(age,
          education_level,
          work_experience,
@@ -365,7 +365,7 @@ write.table(continuous_data_case_3, "~/ownCloud/phd_data/case_3/continuous_data.
 
 categorical_data_case_3 <- network_case_3 %>%
   activate(nodes) %>%
-  as.tibble() %>%
+  as_tibble() %>%
   select(broad_education_field,
          occupation_class,
          org_affiliation)
@@ -374,7 +374,7 @@ write.table(categorical_data_case_3, "~/ownCloud/phd_data/case_3/categorical_dat
 
 binary_data_case_3 <- network_case_3 %>%
   activate(nodes) %>%
-  as.tibble() %>%
+  as_tibble() %>%
   select(gender)
 
 write.table(binary_data_case_3, "~/ownCloud/phd_data/case_3/binary_data.txt", row.names = F, col.names = T, sep = "\t", quote = F)

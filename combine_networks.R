@@ -79,7 +79,28 @@ combined_networks = rbind(top_panel_net, middle_panel_net, bottom_panel_net)
 MASS::write.matrix(combined_networks, file = "~/ownCloud/phd_data/combined_networks.txt")
 
 
-# extract continuous data
+# create big tacit knowledge sharing network
+
+top_panel_net = cbind(tk_1, pad_right_zeros)
+middle_panel_net = cbind(pad_middle_left, tk_2, pad_middle_right)
+bottom_panel_net = cbind(pad_left_zeros, tk_3)
+
+combined_networks = rbind(top_panel_net, middle_panel_net, bottom_panel_net)
+
+MASS::write.matrix(combined_networks, file = "~/ownCloud/phd_data/combined_tk_networks.txt")
+
+# create big explicit knowledge sharing network
+
+top_panel_net = cbind(ek_1, pad_right_zeros)
+middle_panel_net = cbind(pad_middle_left, ek_2, pad_middle_right)
+bottom_panel_net = cbind(pad_left_zeros, ek_3)
+
+combined_networks = rbind(top_panel_net, middle_panel_net, bottom_panel_net)
+
+MASS::write.matrix(combined_networks, file = "~/ownCloud/phd_data/combined_ek_networks.txt")
+
+
+# extract continuous data for leuven
 
 continuous_data_case_1 <- network_case_1 %>% 
   activate(nodes) %>%
@@ -122,4 +143,49 @@ continuous_data <- bind_rows(continuous_data_case_1,
                              continuous_data_case_3)
 
 write.table(continuous_data, "~/ownCloud/phd_data/continuous_data_all.txt", row.names = F, col.names = T, sep = "\t", quote = F)
+
+# extract continuous data for general use
+
+continuous_data_case_1_all <- network_case_1 %>% 
+  activate(nodes) %>%
+  as_tibble() %>%
+  select(-c(id,
+            name, 
+            gender,
+            broad_education_field,
+            occupation_class,
+            org_affiliation,
+            lon, 
+            lat))
+
+continuous_data_case_2_all <- network_case_2 %>% 
+  activate(nodes) %>%
+  as_tibble() %>%
+  select(-c(id,
+            name, 
+            gender,
+            broad_education_field,
+            occupation_class,
+            org_affiliation,
+            lon, 
+            lat))
+
+continuous_data_case_3_all <- network_case_3 %>% 
+  activate(nodes) %>%
+  as_tibble() %>%
+  select(-c(id,
+            name, 
+            gender,
+            broad_education_field,
+            occupation_class,
+            org_affiliation,
+            lon, 
+            lat))
+
+continuous_data_all <- rbind(continuous_data_case_1_all,
+                             continuous_data_case_2_all,
+                             continuous_data_case_3_all)
+
+write.table(continuous_data_all, "~/ownCloud/phd_data/continuous_data_everything.txt", row.names = F, col.names = T, sep = "\t", quote = F)
+
 
