@@ -427,8 +427,8 @@ ggsave("~/owncloud/phd_plots/networks_case_3.png", width = 30, height = 15, unit
 
 # Plot demographics
 
-require(ggthemes)
-require(ggThemeAssist)
+#require(ggthemes)
+#require(ggThemeAssist)
 
 summary_stats <- nodes_geocode %>%
   group_by(case) %>%
@@ -549,7 +549,7 @@ ggsave("~/owncloud/phd_plots/ed_field.png", width = 18, height = 12, units = "cm
 
 # plot proximity heat maps
 
-require(RColorBrewer)
+#require(RColorBrewer)
 
 prox <-rbind(geoproximity_case_1 %>% mutate(case = 1), 
              geoproximity_case_2 %>% mutate(case = 2), 

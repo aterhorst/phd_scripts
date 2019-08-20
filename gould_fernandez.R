@@ -115,11 +115,6 @@ gf <- rbind(gf_1_tk, gf_1_ek, gf_2_tk, gf_2_ek, gf_3_tk, gf_3_ek)
 
 # plot graphs
 
-library(dplyr)
-library(ggplot2)
-library(RColorBrewer)
-
-
 # set up plot
 
 gf_gather <- gf %>%

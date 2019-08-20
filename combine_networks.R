@@ -149,38 +149,74 @@ write.table(continuous_data, "~/ownCloud/phd_data/continuous_data_all.txt", row.
 continuous_data_case_1_all <- network_case_1 %>% 
   activate(nodes) %>%
   as_tibble() %>%
-  select(-c(id,
-            name, 
-            gender,
-            broad_education_field,
-            occupation_class,
-            org_affiliation,
-            lon, 
-            lat))
+  select(age,
+         education_level,
+         work_experience,
+         current_tenure,
+         personality_openness,
+         personality_conscientiousness,
+         personality_agreeableness,
+         job_competence,
+         creative_self_efficacy,
+         amotivation,
+         extrinsic_regulation_material,
+         extrinsic_regulation_social,
+         introjected_regulation,
+         identified_regulation,
+         intrinsic_motivation,
+         controlled_motivation,
+         autonomous_motivation,
+         identification_group,
+         identification_org,
+         identification_collab)
 
 continuous_data_case_2_all <- network_case_2 %>% 
   activate(nodes) %>%
   as_tibble() %>%
-  select(-c(id,
-            name, 
-            gender,
-            broad_education_field,
-            occupation_class,
-            org_affiliation,
-            lon, 
-            lat))
+  select(age,
+         education_level,
+         work_experience,
+         current_tenure,
+         personality_openness,
+         personality_conscientiousness,
+         personality_agreeableness,
+         job_competence,
+         creative_self_efficacy,
+         amotivation,
+         extrinsic_regulation_material,
+         extrinsic_regulation_social,
+         introjected_regulation,
+         identified_regulation,
+         intrinsic_motivation,
+         controlled_motivation,
+         autonomous_motivation,
+         identification_group,
+         identification_org,
+         identification_collab)
 
 continuous_data_case_3_all <- network_case_3 %>% 
   activate(nodes) %>%
   as_tibble() %>%
-  select(-c(id,
-            name, 
-            gender,
-            broad_education_field,
-            occupation_class,
-            org_affiliation,
-            lon, 
-            lat))
+  select(age,
+         education_level,
+         work_experience,
+         current_tenure,
+         personality_openness,
+         personality_conscientiousness,
+         personality_agreeableness,
+         job_competence,
+         creative_self_efficacy,
+         amotivation,
+         extrinsic_regulation_material,
+         extrinsic_regulation_social,
+         introjected_regulation,
+         identified_regulation,
+         intrinsic_motivation,
+         controlled_motivation,
+         autonomous_motivation,
+         identification_group,
+         identification_org,
+         identification_collab)
 
 continuous_data_all <- rbind(continuous_data_case_1_all,
                              continuous_data_case_2_all,
@@ -188,4 +224,31 @@ continuous_data_all <- rbind(continuous_data_case_1_all,
 
 write.table(continuous_data_all, "~/ownCloud/phd_data/continuous_data_everything.txt", row.names = F, col.names = T, sep = "\t", quote = F)
 
+# extract categorical data for general use
 
+categorical_data_case_1_all <- network_case_1 %>% 
+  activate(nodes) %>%
+  as_tibble() %>%
+  select(broad_education_field,
+         occupation_class,
+         org_affiliation)
+
+categorical_data_case_2_all <- network_case_2 %>% 
+  activate(nodes) %>%
+  as_tibble() %>%
+  select(broad_education_field,
+         occupation_class,
+         org_affiliation)
+
+categorical_data_case_3_all <- network_case_3 %>% 
+  activate(nodes) %>%
+  as_tibble() %>%
+  select(broad_education_field,
+         occupation_class,
+         org_affiliation)
+
+categorical_data_all <- rbind(categorical_data_case_1_all,
+                              categorical_data_case_2_all,
+                              categorical_data_case_3_all)
+
+write.table(categorical_data_all, "~/ownCloud/phd_data/categorical_data_everything.txt", row.names = F, col.names = T, sep = "\t", quote = F)
