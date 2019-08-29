@@ -71,8 +71,6 @@ nodes_clean <- nodes %>%
 
 # change column types
 
-require(magrittr)
-
 make_numeric <- c(1, 5:6, 8, 11:12, 14:52)
 nodes_clean[ , make_numeric] %<>% lapply(function(x) as.numeric(as.character(x)))
 

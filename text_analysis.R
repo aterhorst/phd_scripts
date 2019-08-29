@@ -1,3 +1,11 @@
+#######################################################
+#                                                     #
+#        R script for performing text analysis        #
+#       on semi-structured interview transcripts      #
+#                 Version 2019-08-26                  #
+#                (c) Andrew Terhorst                  #
+#                                                     #
+#######################################################
 
 require(tidyverse)
 require(tidytext)

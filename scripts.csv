@@ -1,29 +1,29 @@
-﻿Script,Description,Packages,Author(s)
-data_prep.R,Script for ingesting and pre-processing on-line survey data.,readxl,\citep{wickham2019readxl}
-,,httr,\citep{wickham2018httr}
-,,tidyverse,\citep{wickham2017tidyverse}
-,,ggmap,\citep{kahle2013ggmap}
-,,geosphere,\citep{hijmans2017geosphere}
-,,tidygraph,\citep{pedersen2018tidygraph}
-tidygraph_to_mpnet.R,Script for savng pre-processed data as MPNet data files.,tidyverse,\citep{wickham2017tidyverse}
-,,tidygraph,\citep{pedersen2018tidygraph}
-,,MASS,\citep{venables2013modern}
-ev_brokerage_check.R,Script to check that the Everette-Valente brokerage score was properly implemented in R.,RCurl,\citep{lang2019rcurl}
-,,tidygraph,\citep{pedersen2018tidygraph}
-gould_fernandez.R,Script to  perform Gould and Fernandez (1989) broker role analysis.,tidyverse,\citep{wickham2017tidyverse}
-,,tidygraph,\citep{pedersen2018tidygraph}
-,,intergraph,\citep{bojanowski2015intergraph}
-,,sna,\citep{butts2016package}
-explore_data.R,Script for exploratory data analysis (including network visualisations).,tidyverse,\citep{wickham2017tidyverse}
-,,ggcorrplot,\citep{kassambara2019ggcorrplot}
-,,tidygraph,\citep{pedersen2018tidygraph}
-,,ggraph,\citep{pedersen2018ggraph}
-,,gridExtra,\citep{auguie2017gridextra}
-,,ggpubr,\citep{kassambara2019ggpubr}
-combine_networks.R,Script for combining knowledge networks and actor attributes for all three cases and saving as MPNet data files. Useful for cross-case analysis and for model parameterisation.,tidygraph,\citep{pedersen2018tidygraph}
-,,MASS,\citep{venables2013modern}
-text_analysis.R,"Script for performing basic text analysis of interview transcripts (term frequency counts, LDA topic modelling, word vector analysis).",tidyverse,\citep{wickham2017tidyverse}
-,,tidytext,\citep{silge2016tidytext}
-,,qdap,\citep{rinker2019qdap}
-,,ggwordcloud,\citep{pennec2019ggwordcloud}
-,,ggthemes,\citep{arnold2019ggthemes}
+﻿Script,Description,Required packages,Package author(s)
+data\_prep.R,Script for ingesting and pre-processing on-line survey data.,readxl,\citet{wickham2019readxl}
+,,httr,\citet{wickham2018httr}
+,,tidyverse,\citet{wickham2017tidyverse}
+,,ggmap,\citet{kahle2013ggmap}
+,,geosphere,\citet{hijmans2017geosphere}
+,,tidygraph,\citet{pedersen2018tidygraph}
+tidygraph\_to\_mpnet.R,Script for saving pre-processed data as MPNet data files.,tidyverse,\citet{wickham2017tidyverse}
+,,tidygraph,\citet{pedersen2018tidygraph}
+,,MASS,\citet{venables2013modern}
+ev\_brokerage\_check.R,\makecell[tl]{Script to check that the Everette-Valente brokerage score \\was properly implemented in R.},RCurl,\citet{lang2019rcurl}
+,,tidygraph,\citet{pedersen2018tidygraph}
+gould\_fernandez.R,\makecell[tl]{Script to  perform Gould and Fernandez (1989) broker \\role analysis.},tidyverse,\citet{wickham2017tidyverse}
+,,tidygraph,\citet{pedersen2018tidygraph}
+,,intergraph,\citet{bojanowski2015intergraph}
+,,sna,\citet{butts2016package}
+explore\_data.R,\makecell[tl]{Script for exploratory data analysis (including network \\visualisations).},tidyverse,\citet{wickham2017tidyverse}
+,,ggcorrplot,\citet{kassambara2019ggcorrplot}
+,,tidygraph,\citet{pedersen2018tidygraph}
+,,ggraph,\citet{pedersen2018ggraph}
+,,gridExtra,\citet{auguie2017gridextra}
+,,ggpubr,\citet{kassambara2019ggpubr}
+combine\_networks.R,\makecell[tl]{Script for combining knowledge networks and actor \\attributes for all three cases and saving as MPNet data \\files. Useful for cross-case analysis and for model \\parameterisation.},tidygraph,\citet{pedersen2018tidygraph}
+,,MASS,\citet{venables2013modern}
+text\_analysis.R,"\makecell[tl]{Script for performing basic text analysis of interview \\transcripts (term frequency counts, LDA topic modelling, \\word vector analysis).}",tidyverse,\citet{wickham2017tidyverse}
+,,tidytext,\citet{silge2016tidytext}
+,,qdap,\citet{rinker2019qdap}
+,,ggwordcloud,\citet{pennec2019ggwordcloud}
+,,ggthemes,\citet{arnold2019ggthemes}

@@ -13,6 +13,8 @@ load("~/ownCloud/phd_data/pre_processed_data.RData")
 
 # extract and combine tacit and explicit knowledge networks
 
+require(tidygraph)
+
 tk_1 <-network_case_1 %>%
   activate(edges) %>%
   filter(network == "predominantly_tacit_knowledge_provider") %>%
